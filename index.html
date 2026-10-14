@@ -4,6 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#2C4A86">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="עץ המשפחה">
 <title>עץ משפחת טויביס-לוין</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -173,6 +178,30 @@ h1{font-family:var(--display);font-weight:900;font-size:clamp(30px,5vw,48px);lin
 /* "a newer version exists" bar */
 .newver{position:fixed;inset-inline:0;top:0;z-index:40;display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;justify-content:center;padding:10px 16px;background:var(--accent);color:var(--sheet);font-weight:700;font-size:16px;box-shadow:0 4px 14px rgba(0,0,0,.25)}
 .newver button{font:inherit;font-size:15px;padding:6px 14px;border-radius:999px;border:2px solid var(--sheet);background:var(--sheet);color:var(--accent);cursor:pointer}
+
+/* passport files list */
+.pass{max-width:1240px;margin:0 auto;padding:8px 16px 32px}
+.pass h2{font-family:var(--display);font-weight:900;font-size:28px;margin:0 0 6px}
+.pass .warn{margin:0 0 12px;padding:10px 14px;border:1px dashed var(--accent);border-radius:8px;background:var(--sheet);font-size:15px;line-height:1.6}
+.pass table{width:100%;border-collapse:collapse;background:var(--sheet);border:1px solid var(--rule);border-radius:8px;overflow:hidden;font-size:14.5px}
+.pass th,.pass td{text-align:start;padding:9px 10px;border-bottom:1px solid var(--rule);vertical-align:top}
+.pass th{background:var(--paper);font-weight:700}
+.pass td.k{font-family:var(--mono);font-size:12.5px;color:var(--muted);white-space:nowrap}
+.pass .who{font-weight:700;color:var(--accent);cursor:pointer;text-decoration:underline;background:none;border:0;padding:0;font:inherit}
+@media (max-width:640px){.pass table,.pass tbody,.pass tr,.pass td{display:block;width:100%}.pass thead{display:none}.pass tr{border-bottom:2px solid var(--rule)}.pass td{border:0;padding:4px 10px}}
+
+/* person card: small thumbnails of that person's documents */
+.pdocs{border-top:1px solid var(--rule);padding-top:10px}
+.pdh{font-weight:700;font-size:14px;margin-bottom:8px}
+.pdg{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px}
+.pdt{display:flex;flex-direction:column;gap:4px;padding:4px;border:1px solid var(--rule);border-radius:6px;background:var(--paper);color:var(--ink);font:inherit;font-size:11.5px;line-height:1.3;text-align:start;cursor:zoom-in}
+.pdt img{width:100%;aspect-ratio:3/4;object-fit:cover;object-position:top;border-radius:3px}
+.pdt span{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+
+/* install as an app */
+.install button{font:inherit;font-size:16px;font-weight:700;padding:10px 16px;border-radius:999px;border:2px solid var(--accent);background:var(--sheet);color:var(--accent);cursor:pointer}
+.install button:hover,.install button:focus-visible{background:var(--accent);color:var(--sheet);outline:none}
+.ioshelp{margin:8px 0 0;padding:10px 14px;border:1px solid var(--rule);border-radius:8px;background:var(--sheet);font-size:15px;line-height:1.6}
 </style>
 </head>
 <body>
@@ -184,6 +213,7 @@ h1{font-family:var(--display);font-weight:900;font-size:clamp(30px,5vw,48px);lin
     <h1>עץ משפחת טויביס-לוין</h1>
     <p class="lede">ארבעה ענפים שנפגשים ביונתן: לוין מסבנציאן וקוצ'ר מווילנה וקובנה מצד אמא, טויביס וריבקינד מאוקראינה מצד אבא.</p>
     <p class="hint">👆 לחיצה על שם של אדם פותחת חלון עם הסיפור שלו: מה ידוע עליו, ומאיזה מסמך. סוגרים בכפתור "סגירה" או בלחיצה מחוץ לחלון.</p>
+    <div class="install"><button type="button" id="installbtn" hidden>📲 התקנה כאפליקציה בטלפון או במחשב</button><p class="ioshelp" id="ioshelp" hidden>באייפון: לחצו על כפתור השיתוף <b>⬆️</b> בתחתית הדפדפן Safari, ואז על <b>"הוספה למסך הבית"</b>. האפליקציה תופיע במסך הבית עם סמל של עץ.</p></div>
     <div class="tools">
       <label class="search" for="q"><span aria-hidden="true">⌕</span><input id="q" type="search" placeholder="חיפוש שם, למשל: רסל" autocomplete="off"></label>
       <div class="legend" aria-label="מקרא">
@@ -241,6 +271,25 @@ h1{font-family:var(--display);font-weight:900;font-size:clamp(30px,5vw,48px);lin
     <p class="src" style="margin:0;color:var(--muted);font-size:12.5px">מקורות: דפי עד ביד ושם (הסריקות בכתב יד, 1956–1958) · עבודת השורשים של נעמה טויביס (2007) · Arolsen Archives, תיקי שטוטהוף · אתר יזכור · ספר הנימולים של פתח תקווה (עיל"ם) · תמונות משפחת ריבקינד. ענף עובדיה מכלקיס שביוון, משפחת אשתו של יונתן, נמצא בארכיון ואינו נכלל כאן.</p>
   </section>
 
+
+  <section class="pass" id="passports">
+    <h2>📇 תיקי הדרכונים בקובנה, 1921–1940</h2>
+    <p class="warn"><b>התמונות עצמן עדיין לא אצלנו.</b> מצאנו את הרשימה של התיקים במאגר LitvakSIG ב-JewishGen. התיקים, עם התמונות, נמצאים בארכיון המחוז של קובנה (KRA), ואפשר להזמין מהם סריקות. כשיגיעו — הן יתווספו לגלריה עם שם מתחת לכל תמונה. לחיצה על שם פותחת את הכרטיס של האדם.</p>
+    <table>
+      <thead><tr><th>מי</th><th>מה כתוב בתיק</th><th>מספר התיק</th></tr></thead>
+      <tbody>
+      <tr><td><button type="button" class="who" data-open="rivka">רבקה קוצ׳ר (סבתא)</button></td><td>כרטיס דרכון, 6.3.1940. ילידת קובנה 1922, תופרת. יש בכרטיס תמונה.</td><td class="k">KRA/66/1/886</td></tr>
+      <tr><td><button type="button" class="who" data-open="estera">אסתרה קוצ׳ר לבית סלוצקי</button></td><td>תיק משפחתי, 1940. ילידת וילנה 1896. אמה: שרה לבית בנר; אביה נפטר ב-1926 בקדייניאי. תעודת זהות זמנית עם תמונה, 9.12.1939.</td><td class="k">KRA/66/1/1855</td></tr>
+      <tr><td><button type="button" class="who" data-open="motel">מוטל (מרדכי) קוצ׳ר</button></td><td>כרטיס דרכון, 24.2.1921, בן 28, פועל. ראש משק הבית בתיק המשפחתי, 1940.</td><td class="k">KRA/66/1/22952 · 1855</td></tr>
+      <tr><td><button type="button" class="who" data-open="yaakov_k2">יעקב קוצ׳ר</button></td><td>נולד 24.9.1923 בקובנה. בקשה לדרכון עם חתימתו, 19.10.1940. זבן.</td><td class="k">KRA/66/1/6</td></tr>
+      <tr><td><button type="button" class="who" data-open="tzipora_k">פייגה (ציפורה) קוצ׳ר</button></td><td>ילידת 1925, תלמידה — בתיק המשפחתי.</td><td class="k">KRA/66/1/1855</td></tr>
+      <tr><td><button type="button" class="who" data-open="chaim_n">חיים (נחום) קוצ׳ר</button></td><td>יליד 1930, תלמיד — בתיק המשפחתי.</td><td class="k">KRA/66/1/1855</td></tr>
+      <tr><td><button type="button" class="who" data-open="sheina">שיינה קוצ׳ר לבית פודברזקי</button></td><td>כרטיס דרכון, 21.2.1933. ילידת 1871, וישנבו.</td><td class="k">KRA/66/1/565</td></tr>
+      <tr><td><button type="button" class="who" data-open="icek">איציק (יצחק) קוצ׳ר</button></td><td>כרטיס דרכון, 21.2.1933. יליד וילנה 1909, סוחר.</td><td class="k">KRA/66/1/564</td></tr>
+      <tr><td><button type="button" class="who" data-open="yenta">ינטה קוצ׳ר / יודלביץ׳</button></td><td>כרטיסי דרכון, 1921 ו-1930. תופרת.</td><td class="k">KRA/66/1/23212 · 9113</td></tr>
+      </tbody>
+    </table>
+  </section>
   <section class="gallery" id="gallery">
     <h2>מסמכים מהארכיונים</h2>
     <p class="gnote">הסריקות שנמצאו בארכיונים, בגרמניה, בפולין, בארה"ב וביד ושם. לחיצה על תמונה פותחת אותה בגודל מלא. בתמונות הקבוצתיות כתוב מתחת לתמונה איפה עומד כל אחד מבני המשפחה, לפי סדר השמות בספר, מימין לשמאל.</p>
@@ -274,6 +323,7 @@ h1{font-family:var(--display);font-weight:900;font-size:clamp(30px,5vw,48px);lin
   <dl class="facts" id="pfacts"></dl>
   <p class="note" id="pnote"></p>
   <p class="flag" id="pflag" hidden></p>
+  <div class="pdocs" id="pdocs" hidden><div class="pdh">📎 מסמכים ותמונות</div><div class="pdg" id="pdg"></div></div>
   <p class="src" id="psrc"></p>
 </aside>
 
@@ -543,12 +593,18 @@ function openP(id,btn){
   const n=document.getElementById('pnote'); n.textContent=p.note||''; n.hidden=!p.note;
   const fl=document.getElementById('pflag'); fl.hidden=!p.flag; fl.textContent=p.flag?('לא מאומת: '+p.flag):'';
   document.getElementById('psrc').textContent=p.src?('מקור: '+p.src):'';
+  const pd=document.getElementById('pdocs'), pg=document.getElementById('pdg'); pg.textContent='';
+  (window.GALFLAT||[]).forEach((it,i)=>{ if(!(it.p||[]).includes(id)) return;
+    const b=el('button','pdt'); b.type='button'; b.title=it.c;
+    const im=document.createElement('img'); im.src='gallery/'+it.f+'t.jpg'; im.alt=it.c; im.loading='lazy';
+    b.append(im, el('span',null,it.c)); b.addEventListener('click',()=>window.galOpen(i,b)); pg.append(b); });
+  pd.hidden=!pg.children.length;
   scrim.hidden=false; panel.hidden=false; document.getElementById('close').focus();
 }
 function closeP(){ panel.hidden=true; scrim.hidden=true; if(lastBtn) lastBtn.focus(); }
 document.getElementById('close').addEventListener('click',closeP);
 scrim.addEventListener('click',closeP);
-document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&!panel.hidden) closeP(); });
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&!panel.hidden&&document.getElementById('lb').hidden) closeP(); });
 
 // search
 const q=document.getElementById('q');
@@ -565,7 +621,7 @@ q.addEventListener('input',()=>{
 });
 
 // ---- gallery ----
-const GAL=[{"t": "ספר הזיכרון של סבנציאן (תל אביב, 1965)", "n": "הספר המלא סרוק ופתוח לקריאה: archive.org/details/nybc314030", "i": [{"f": "g001", "c": "רשימת הקדושים טורים 1895-1896 - גיטל ודבורה, חנן וליבע לוין, משפחות חרמץ"}, {"f": "g002", "c": "רשימת הקדושים טורים 1897-1898 - המשך לוין, נחמה לוין"}, {"f": "g003", "c": "תמונה טור 309 - גיטל, גולדה וחיה פייגל", "w": "גיטל פייגל (אשתו הראשונה של סבא יעקב): בשורה הראשונה של העומדות, שלישית מימין. גולדה פייגל (אחותה): בשורה השנייה של העומדים, שנייה מימין. חיה פייגל (אחותה): בשורת היושבות, השביעית מימין — האחרונה משמאל."}, {"f": "g004", "c": "תמונה טור 301 - 1924 - יאנקב לוין (אולי סבא)", "w": "השלט: \"החלוץ 1924\". יאנקב לוין: בשורה הראשונה של היושבים, האחרון משמאל (11 מימין) — ייתכן שזה סבא יעקב, אז בן 19. עוד בתמונה: חיה לוין וסוניה חרמץ (בשורת העומדים), דבורה פייגל (ליד הקיר)."}, {"f": "g005", "c": "תמונה - כנס יוצאי סבנציאן בתל אביב 9.10.1960 - שכנא לוין, גרשון ואסתר קוריצקי, גולדה בושקניץ", "w": "שכנא לוין, אחיו של סבא יעקב: בשורת היושבים, ה-11 מימין. אסתר פייגל-קוריצקי וגרשון קוריצקי (אחותה וגיסה של גיטל): יושבים, 6 ו-7 מימין. גולדה פייגל-בושקניץ ויוסי בושקניץ: בשורה השלישית, 3 ו-2 מימין. גם בתמונה: בער, חיים ושלמה חרמץ, ולייזר לוין."}, {"f": "g006", "c": "פרק החורבן של סבנציאן, מקור ביידיש - עמוד סריקה 278"}]}, {"t": "דפי עד ביד ושם · משפחות לוין וקוצ'ר", "n": "מקור: יד ושם, מאגר שמות הנרצחים", "i": [{"f": "g007", "c": "יעקב לוין על אמו ליבא - 28.6.1956 - דף 97253"}, {"f": "g008", "c": "יעקב לוין על אחיו חיים - 28.6.1956 - דף 97254"}, {"f": "g009", "c": "לייב לוין מקובנה - 28.6.1956 - דף 97256"}, {"f": "g010", "c": "רבקה לוין על אמה אסתרה קוצר - 28.6.1956 - דף 97262"}, {"f": "g011", "c": "יעקב לוין על אחותו רסל - 28.6.1956"}, {"f": "g012", "c": "רבקה לוין על דודה יצחק קוצר השחקן - 28.6.1956"}, {"f": "g013", "c": "שכנא לוין על אביו אלחנן - 18.10.1956"}, {"f": "g014", "c": "שכנא לוין על אחותו רסל פפקין - 18.10.1956"}, {"f": "g015", "c": "שכנא לוין על אחותו רחל - 18.10.1956"}, {"f": "g016", "c": "רבקה לוין על אביה מוטל קוצר - 20.6.1957"}, {"f": "g017", "c": "גיטל לוין לבית פייגל - אשתו הראשונה של יעקב - 1.7.1958"}, {"f": "g018", "c": "דבורה לוין - בתו של יעקב"}, {"f": "g019", "c": "הירש לוין - רשומה מספר היזכור של סבנציאן (לא דף עד)"}, {"f": "g020", "c": "שרה לוין שמוקלר"}, {"f": "g021", "c": "פיניה שמוקלר בעלה של שרה"}, {"f": "g022", "c": "חיים פפקין בעלה של רסל"}]}, {"t": "דפי עד ביד ושם · משפחת קרינגל, כנראה בני הדודים של אסתרה", "n": "מקור: יד ושם, מאגר שמות הנרצחים", "i": [{"f": "g023", "c": "שלמה קרינגל על אברהם גורדון בעלה של רוזה, ועל שרה בתם - 28.10.1956 - פריט 360905"}, {"f": "g024", "c": "שלמה קרינגל על אחותו לאה - 28.10.1956 - פריט 1970571"}, {"f": "g025", "c": "שלמה קרינגל על אחותו חיה - 28.10.1956 - פריט 1434343"}, {"f": "g026", "c": "יוסף קרינגל על אחותו לאה - 16.7.1957 - פריט 445703"}, {"f": "g027", "c": "יוסף קרינגל על אחותו חיה - 16.7.1957 - פריט 16629871"}, {"f": "g028", "c": "יוסף קרינגל על משה טבריסוק בעלה של אסתר סלוצקי - 16.7.1957 - פריט 1101075"}, {"f": "g029", "c": "יוסף קרינגל על דודתו רבקה קנטורוביץ' - 16.7.1957 - פריט 1608641"}, {"f": "g030", "c": "יוסף קרינגל על חיים קנטורוביץ' - 16.7.1957 - פריט 1977564"}, {"f": "g031", "c": "יוסף קרינגל על בן דודו אברהם לייב פלוצקי - 1957 - פריט 1029459"}]}, {"t": "שטוטהוף · המסמכים של סבא יעקב", "n": "מקור: ארכיון Arolsen ומוזיאון שטוטהוף", "i": [{"f": "g032", "c": "יעקב לוין - כרטיס אסיר 72649"}, {"f": "g033", "c": "יעקב לוין - מעטפת התיק"}, {"f": "g034", "c": "יעקב לוין - כרטיס אסיר, מוזיאון שטוטהוף (I-III-49352)"}, {"f": "g035", "c": "יעקב לוין - ספר האסירים עמ' 30 (I-IIE-14)"}, {"f": "g036", "c": "יעקב לוין - רשימת הטרנספורט מריגה 23.8.1944 (I-IIB-11)"}]}];
+const GAL=[{"t": "ספר הזיכרון של סבנציאן (תל אביב, 1965)", "n": "הספר המלא סרוק ופתוח לקריאה: archive.org/details/nybc314030", "i": [{"f": "g001", "c": "רשימת הקדושים טורים 1895-1896 - גיטל ודבורה, חנן וליבע לוין, משפחות חרמץ", "p": ["gitel", "dvora_l", "elhanan", "liba", "haim_l", "hirsh", "rachel_l"]}, {"f": "g002", "c": "רשימת הקדושים טורים 1897-1898 - המשך לוין, נחמה לוין", "p": ["nachama_g"]}, {"f": "g003", "c": "תמונה טור 309 - גיטל, גולדה וחיה פייגל", "w": "גיטל פייגל (אשתו הראשונה של סבא יעקב): בשורה הראשונה של העומדות, שלישית מימין. גולדה פייגל (אחותה): בשורה השנייה של העומדים, שנייה מימין. חיה פייגל (אחותה): בשורת היושבות, השביעית מימין — האחרונה משמאל.", "p": ["gitel"]}, {"f": "g004", "c": "תמונה טור 301 - 1924 - יאנקב לוין (אולי סבא)", "w": "השלט: \"החלוץ 1924\". יאנקב לוין: בשורה הראשונה של היושבים, האחרון משמאל (11 מימין) — ייתכן שזה סבא יעקב, אז בן 19. עוד בתמונה: חיה לוין וסוניה חרמץ (בשורת העומדים), דבורה פייגל (ליד הקיר).", "p": ["jakob"]}, {"f": "g005", "c": "תמונה - כנס יוצאי סבנציאן בתל אביב 9.10.1960 - שכנא לוין, גרשון ואסתר קוריצקי, גולדה בושקניץ", "w": "שכנא לוין, אחיו של סבא יעקב: בשורת היושבים, ה-11 מימין. אסתר פייגל-קוריצקי וגרשון קוריצקי (אחותה וגיסה של גיטל): יושבים, 6 ו-7 מימין. גולדה פייגל-בושקניץ ויוסי בושקניץ: בשורה השלישית, 3 ו-2 מימין. גם בתמונה: בער, חיים ושלמה חרמץ, ולייזר לוין.", "p": ["shachna"]}, {"f": "g006", "c": "פרק החורבן של סבנציאן, מקור ביידיש - עמוד סריקה 278", "p": ["jakob"]}]}, {"t": "דפי עד ביד ושם · משפחות לוין וקוצ'ר", "n": "מקור: יד ושם, מאגר שמות הנרצחים", "i": [{"f": "g007", "c": "יעקב לוין על אמו ליבא - 28.6.1956 - דף 97253", "p": ["liba", "jakob"]}, {"f": "g008", "c": "יעקב לוין על אחיו חיים - 28.6.1956 - דף 97254", "p": ["haim_l"]}, {"f": "g009", "c": "לייב לוין מקובנה - 28.6.1956 - דף 97256", "p": ["leib_kov"]}, {"f": "g010", "c": "רבקה לוין על אמה אסתרה קוצר - 28.6.1956 - דף 97262", "p": ["estera", "rivka"]}, {"f": "g011", "c": "יעקב לוין על אחותו רסל - 28.6.1956", "p": ["rasl"]}, {"f": "g012", "c": "רבקה לוין על דודה יצחק קוצר השחקן - 28.6.1956", "p": ["icek"]}, {"f": "g013", "c": "שכנא לוין על אביו אלחנן - 18.10.1956", "p": ["elhanan", "shachna"]}, {"f": "g014", "c": "שכנא לוין על אחותו רסל פפקין - 18.10.1956", "p": ["rasl", "shachna"]}, {"f": "g015", "c": "שכנא לוין על אחותו רחל - 18.10.1956", "p": ["rachel_l", "shachna"]}, {"f": "g016", "c": "רבקה לוין על אביה מוטל קוצר - 20.6.1957", "p": ["motel", "rivka"]}, {"f": "g017", "c": "גיטל לוין לבית פייגל - אשתו הראשונה של יעקב - 1.7.1958", "p": ["gitel"]}, {"f": "g018", "c": "דבורה לוין - בתו של יעקב", "p": ["dvora_l"]}, {"f": "g019", "c": "הירש לוין - רשומה מספר היזכור של סבנציאן (לא דף עד)", "p": ["hirsh"]}, {"f": "g020", "c": "שרה לוין שמוקלר", "p": ["sarah_l"]}, {"f": "g021", "c": "פיניה שמוקלר בעלה של שרה", "p": ["pinia"]}, {"f": "g022", "c": "חיים פפקין בעלה של רסל", "p": ["papkin"]}]}, {"t": "דפי עד ביד ושם · משפחת קרינגל, כנראה בני הדודים של אסתרה", "n": "מקור: יד ושם, מאגר שמות הנרצחים", "i": [{"f": "g023", "c": "שלמה קרינגל על אברהם גורדון בעלה של רוזה, ועל שרה בתם - 28.10.1956 - פריט 360905", "p": ["abram_g", "roza_kr", "sara_g", "shlomo_kr"]}, {"f": "g024", "c": "שלמה קרינגל על אחותו לאה - 28.10.1956 - פריט 1970571", "p": ["lea_kr", "shlomo_kr"]}, {"f": "g025", "c": "שלמה קרינגל על אחותו חיה - 28.10.1956 - פריט 1434343", "p": ["chaya_kr", "shlomo_kr"]}, {"f": "g026", "c": "יוסף קרינגל על אחותו לאה - 16.7.1957 - פריט 445703", "p": ["lea_kr", "yosef_k"]}, {"f": "g027", "c": "יוסף קרינגל על אחותו חיה - 16.7.1957 - פריט 16629871", "p": ["chaya_kr", "yosef_k"]}, {"f": "g028", "c": "יוסף קרינגל על משה טבריסוק בעלה של אסתר סלוצקי - 16.7.1957 - פריט 1101075", "p": ["yosef_k"]}, {"f": "g029", "c": "יוסף קרינגל על דודתו רבקה קנטורוביץ' - 16.7.1957 - פריט 1608641", "p": ["rivka_kant", "yosef_k"]}, {"f": "g030", "c": "יוסף קרינגל על חיים קנטורוביץ' - 16.7.1957 - פריט 1977564", "p": ["chaim_kant", "yosef_k"]}, {"f": "g031", "c": "יוסף קרינגל על בן דודו אברהם לייב פלוצקי - 1957 - פריט 1029459", "p": ["yosef_k"]}]}, {"t": "שטוטהוף · המסמכים של סבא יעקב", "n": "מקור: ארכיון Arolsen ומוזיאון שטוטהוף", "i": [{"f": "g032", "c": "יעקב לוין - כרטיס אסיר 72649", "p": ["jakob"]}, {"f": "g033", "c": "יעקב לוין - מעטפת התיק", "p": ["jakob"]}, {"f": "g034", "c": "יעקב לוין - כרטיס אסיר, מוזיאון שטוטהוף (I-III-49352)", "p": ["jakob"]}, {"f": "g035", "c": "יעקב לוין - ספר האסירים עמ' 30 (I-IIE-14)", "p": ["jakob"]}, {"f": "g036", "c": "יעקב לוין - רשימת הטרנספורט מריגה 23.8.1944 (I-IIB-11)", "p": ["jakob"]}]}];
 (function(){
   const host=document.getElementById('gal'); if(!host) return;
   const flat=[];
@@ -614,6 +670,7 @@ const GAL=[{"t": "ספר הזיכרון של סבנציאן (תל אביב, 1965
   box.addEventListener('pointerup',up); box.addEventListener('pointercancel',up);
   function show(i){ cur=(i+flat.length)%flat.length; z=1; zl.textContent='100%'; li.src='gallery/'+flat[cur].f+'.jpg'; li.alt=flat[cur].c; lc.textContent=flat[cur].c+(flat[cur].w?' — '+flat[cur].w:'')+' · '+(cur+1)+' מתוך '+flat.length; }
   function openLB(i,btn){ from=btn; show(i); lb.hidden=false; document.getElementById('lbclose').focus(); }
+  window.GALFLAT=flat; window.galOpen=openLB;
   function closeLB(){ lb.hidden=true; li.removeAttribute('src'); if(from) from.focus(); }
   document.getElementById('lbclose').addEventListener('click',closeLB);
   document.getElementById('lbprev').addEventListener('click',()=>show(cur-1));
@@ -647,7 +704,7 @@ const GAL=[{"t": "ספר הזיכרון של סבנציאן (תל אביב, 1965
 })();
 
 // ---- tells an open or cached old copy that a newer version was published ----
-const TREE_VERSION='20261014213933';
+const TREE_VERSION='20261014214523';
 (function(){
   if(!/^https?:$/.test(location.protocol)) return;
   const bar=document.getElementById('newver');
@@ -661,6 +718,27 @@ const TREE_VERSION='20261014213933';
   document.getElementById('newverbtn').addEventListener('click',()=>{ location.href=location.pathname+'?v='+Date.now(); });
   check(); setInterval(check,5*60*1000);
   document.addEventListener('visibilitychange',()=>{ if(!document.hidden) check(); });
+})();
+
+// passport list: names open the person card
+document.querySelectorAll('.pass .who').forEach(b=>b.addEventListener('click',()=>openP(b.dataset.open,b)));
+
+// ---- install as an app (only where the app files exist: the GitHub site) ----
+(function(){
+  if(!document.querySelector('link[rel="manifest"]')) return;
+  if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
+  const btn=document.getElementById('installbtn'), help=document.getElementById('ioshelp');
+  const installed=matchMedia('(display-mode: standalone)').matches||navigator.standalone;
+  if(installed) return;
+  let ev=null;
+  window.addEventListener('beforeinstallprompt',e=>{ e.preventDefault(); ev=e; btn.hidden=false; });
+  window.addEventListener('appinstalled',()=>{ btn.hidden=true; help.hidden=true; });
+  const ios=/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+  if(ios) btn.hidden=false;
+  btn.addEventListener('click',async()=>{
+    if(ev){ ev.prompt(); try{ await ev.userChoice; }catch(e){} ev=null; btn.hidden=true; }
+    else help.hidden=!help.hidden;
+  });
 })();
 </script>
 
