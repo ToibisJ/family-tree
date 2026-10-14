@@ -148,11 +148,16 @@ h1{font-family:var(--display);font-weight:900;font-size:clamp(30px,5vw,48px);lin
 .gthumb{display:flex;flex-direction:column;gap:6px;padding:6px;border:1px solid var(--rule);border-radius:8px;background:var(--sheet);color:var(--ink);font:inherit;font-size:12.5px;line-height:1.35;text-align:start;cursor:zoom-in}
 .gthumb:hover,.gthumb:focus-visible{border-color:var(--accent);outline:none}
 .gthumb img{width:100%;aspect-ratio:3/4;object-fit:cover;object-position:top;border-radius:4px;background:var(--paper)}
-.lightbox{position:fixed;inset:0;z-index:30;background:rgba(10,15,18,.88);display:grid;grid-template-rows:auto 1fr auto;gap:8px;padding:12px}
+.lightbox{position:fixed;inset:0;z-index:30;background:rgba(10,15,18,.95);display:grid;grid-template-rows:auto 1fr auto;gap:8px;padding:12px}
 .lightbox .lbbar{display:flex;gap:8px;justify-content:space-between;align-items:center}
 .lightbox button{font:inherit;font-size:15px;padding:8px 14px;border-radius:8px;border:1px solid #fff6;background:#0008;color:#fff;cursor:pointer}
-.lightbox .lbimg{min-height:0;display:flex;align-items:center;justify-content:center;overflow:auto}
-.lightbox img{max-width:100%;max-height:100%;object-fit:contain;background:#fff}
+.lightbox .lbimg{min-height:0;display:flex;overflow:auto;direction:ltr;touch-action:pan-x pan-y;cursor:zoom-in}
+.lightbox .lbimg.zoomed{cursor:grab}
+.lightbox .lbimg.drag{cursor:grabbing}
+.lightbox .lbbar{flex-wrap:wrap}
+.lightbox .lbzoom{display:inline-flex;gap:4px}
+.lightbox .lbzoom button{min-width:44px}
+.lightbox img{display:block;margin:auto;flex:none;background:#fff;user-select:none;-webkit-user-drag:none}
 .lightbox .lbcap{color:#fff;margin:0;text-align:center;font-size:15px;line-height:1.5}
 </style>
 </head>
@@ -231,7 +236,7 @@ h1{font-family:var(--display);font-weight:900;font-size:clamp(30px,5vw,48px);lin
 
 <div class="scrim" id="scrim" hidden></div>
 <div class="lightbox" id="lb" role="dialog" aria-modal="true" aria-label="תמונה בגודל מלא" hidden>
-  <div class="lbbar"><button type="button" id="lbclose">סגירה ✕</button><span><button type="button" id="lbprev">→ הקודם</button> <button type="button" id="lbnext">הבא ←</button></span></div>
+  <div class="lbbar"><button type="button" id="lbclose">סגירה ✕</button><span class="lbzoom"><button type="button" id="lbout" aria-label="הקטנה">－</button><button type="button" id="lbfit" aria-label="התאמה למסך">100%</button><button type="button" id="lbin" aria-label="הגדלה">＋</button></span><span><button type="button" id="lbprev">→ הקודם</button> <button type="button" id="lbnext">הבא ←</button></span></div>
   <div class="lbimg"><img id="lbimg" alt=""></div>
   <p class="lbcap" id="lbcap"></p>
 </div>
@@ -548,16 +553,47 @@ const GAL=[{"t": "ספר הזיכרון של סבנציאן (תל אביב, 1965
     d.append(g); host.append(d);
   });
   const lb=document.getElementById('lb'), li=document.getElementById('lbimg'), lc=document.getElementById('lbcap');
-  let cur=0, from=null;
-  function show(i){ cur=(i+flat.length)%flat.length; li.src='gallery/'+flat[cur].f+'.jpg'; li.alt=flat[cur].c; lc.textContent=flat[cur].c+' · '+(cur+1)+' מתוך '+flat.length; }
+  let cur=0, from=null, z=1;
+  const box=lb.querySelector('.lbimg'), zl=document.getElementById('lbfit');
+  // zoom: z=1 fits the screen; the image is resized and the box scrolls around the zoom point
+  function fitW(){ const r=box.getBoundingClientRect(), a=(li.naturalWidth||1)/(li.naturalHeight||1); let w=r.width, h=w/a; if(h>r.height){ h=r.height; w=h*a; } return w; }
+  function zoomTo(nz,cx,cy){
+    nz=Math.min(6,Math.max(1,nz)); const r=box.getBoundingClientRect();
+    if(cx==null){ cx=r.left+r.width/2; cy=r.top+r.height/2; }
+    const ox=(box.scrollLeft+cx-r.left)/(li.offsetWidth||1), oy=(box.scrollTop+cy-r.top)/(li.offsetHeight||1);
+    z=nz; li.style.width=(fitW()*z)+'px'; zl.textContent=Math.round(z*100)+'%';
+    box.classList.toggle('zoomed',z>1);
+    box.scrollLeft=ox*li.offsetWidth-(cx-r.left); box.scrollTop=oy*li.offsetHeight-(cy-r.top);
+  }
+  li.addEventListener('load',()=>zoomTo(1));
+  window.addEventListener('resize',()=>{ if(!lb.hidden) zoomTo(z); });
+  document.getElementById('lbin').addEventListener('click',()=>zoomTo(z*1.5));
+  document.getElementById('lbout').addEventListener('click',()=>zoomTo(z/1.5));
+  zl.addEventListener('click',()=>zoomTo(1));
+  box.addEventListener('wheel',e=>{ e.preventDefault(); zoomTo(z*(e.deltaY<0?1.2:1/1.2),e.clientX,e.clientY); },{passive:false});
+  box.addEventListener('dblclick',e=>zoomTo(z>1?1:2.5,e.clientX,e.clientY));
+  // drag to pan (mouse), pinch to zoom (two fingers)
+  const pts=new Map(); let pinch0=0, z0=1, moved=false;
+  box.addEventListener('pointerdown',e=>{ pts.set(e.pointerId,{x:e.clientX,y:e.clientY}); moved=false;
+    if(pts.size===2){ const [a,b]=[...pts.values()]; pinch0=Math.hypot(a.x-b.x,a.y-b.y); z0=z; }
+    if(e.pointerType==='mouse'&&z>1){ box.classList.add('drag'); box.setPointerCapture(e.pointerId); } });
+  box.addEventListener('pointermove',e=>{ const p0=pts.get(e.pointerId); if(!p0) return;
+    if(pts.size===2){ pts.set(e.pointerId,{x:e.clientX,y:e.clientY}); const [a,b]=[...pts.values()];
+      if(pinch0) zoomTo(z0*Math.hypot(a.x-b.x,a.y-b.y)/pinch0,(a.x+b.x)/2,(a.y+b.y)/2); moved=true; return; }
+    if(e.pointerType==='mouse'&&z>1){ box.scrollLeft-=e.clientX-p0.x; box.scrollTop-=e.clientY-p0.y; moved=true; }
+    pts.set(e.pointerId,{x:e.clientX,y:e.clientY}); });
+  const up=e=>{ pts.delete(e.pointerId); if(pts.size<2) pinch0=0; box.classList.remove('drag'); };
+  box.addEventListener('pointerup',up); box.addEventListener('pointercancel',up);
+  function show(i){ cur=(i+flat.length)%flat.length; z=1; zl.textContent='100%'; li.src='gallery/'+flat[cur].f+'.jpg'; li.alt=flat[cur].c; lc.textContent=flat[cur].c+' · '+(cur+1)+' מתוך '+flat.length; }
   function openLB(i,btn){ from=btn; show(i); lb.hidden=false; document.getElementById('lbclose').focus(); }
   function closeLB(){ lb.hidden=true; li.removeAttribute('src'); if(from) from.focus(); }
   document.getElementById('lbclose').addEventListener('click',closeLB);
   document.getElementById('lbprev').addEventListener('click',()=>show(cur-1));
   document.getElementById('lbnext').addEventListener('click',()=>show(cur+1));
-  lb.addEventListener('click',e=>{ if(e.target===lb||e.target.classList.contains('lbimg')) closeLB(); });
+  lb.addEventListener('click',e=>{ if(moved){ moved=false; return; } if(e.target===lb||(e.target===box&&z===1)) closeLB(); });
   document.addEventListener('keydown',e=>{ if(lb.hidden) return;
-    if(e.key==='Escape') closeLB(); else if(e.key==='ArrowLeft') show(cur+1); else if(e.key==='ArrowRight') show(cur-1); });
+    if(e.key==='Escape') closeLB(); else if(e.key==='ArrowLeft') show(cur+1); else if(e.key==='ArrowRight') show(cur-1);
+    else if(e.key==='+'||e.key==='=') zoomTo(z*1.5); else if(e.key==='-') zoomTo(z/1.5); else if(e.key==='0') zoomTo(1); });
 })();
 </script>
 
