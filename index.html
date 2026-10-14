@@ -169,6 +169,10 @@ h1{font-family:var(--display);font-weight:900;font-size:clamp(30px,5vw,48px);lin
 .a11ymenu button{font:inherit;font-size:16px;text-align:start;padding:9px 12px;border-radius:8px;border:1px solid var(--rule);background:var(--paper);color:var(--ink);cursor:pointer}
 .a11ymenu button:hover,.a11ymenu button:focus-visible{border-color:var(--accent);outline:none}
 .a11ymenu .lvl{margin:0;font-size:13px;color:var(--muted);text-align:center}
+
+/* "a newer version exists" bar */
+.newver{position:fixed;inset-inline:0;top:0;z-index:40;display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;justify-content:center;padding:10px 16px;background:var(--accent);color:var(--sheet);font-weight:700;font-size:16px;box-shadow:0 4px 14px rgba(0,0,0,.25)}
+.newver button{font:inherit;font-size:15px;padding:6px 14px;border-radius:999px;border:2px solid var(--sheet);background:var(--sheet);color:var(--accent);cursor:pointer}
 </style>
 </head>
 <body>
@@ -176,7 +180,7 @@ h1{font-family:var(--display);font-weight:900;font-size:clamp(30px,5vw,48px);lin
 
 <div class="wrap" dir="rtl" lang="he">
   <header class="top">
-    <div class="eyebrow">עבודת השורשים · עודכן אוקטובר 2026</div>
+    <div class="eyebrow">עבודת השורשים · עודכן <span id="upd">14.10.2026</span></div>
     <h1>עץ משפחת טויביס-לוין</h1>
     <p class="lede">ארבעה ענפים שנפגשים ביונתן: לוין מסבנציאן וקוצ'ר מווילנה וקובנה מצד אמא, טויביס וריבקינד מאוקראינה מצד אבא.</p>
     <p class="hint">👆 לחיצה על שם של אדם פותחת חלון עם הסיפור שלו: מה ידוע עליו, ומאיזה מסמך. סוגרים בכפתור "סגירה" או בלחיצה מחוץ לחלון.</p>
@@ -254,6 +258,7 @@ h1{font-family:var(--display);font-weight:900;font-size:clamp(30px,5vw,48px);lin
   </div>
   <button type="button" id="a11ybtn" aria-expanded="false" aria-controls="a11ymenu">♿ נגישות</button>
 </div>
+<div class="newver" id="newver" role="status" hidden>🔄 יש עדכון חדש לעץ<button type="button" id="newverbtn">לטעינת הגרסה החדשה</button></div>
 <div class="scrim" id="scrim" hidden></div>
 <div class="lightbox" id="lb" role="dialog" aria-modal="true" aria-label="תמונה בגודל מלא" hidden>
   <div class="lbbar"><button type="button" id="lbclose">סגירה ✕</button><span class="lbzoom"><button type="button" id="lbout" aria-label="הקטנה">－</button><button type="button" id="lbfit" aria-label="התאמה למסך">100%</button><button type="button" id="lbin" aria-label="הגדלה">＋</button></span><span><button type="button" id="lbprev">→ הקודם</button> <button type="button" id="lbnext">הבא ←</button></span></div>
@@ -639,6 +644,23 @@ const GAL=[{"t": "ספר הזיכרון של סבנציאן (תל אביב, 1965
   document.getElementById('a11ysmall').addEventListener('click',()=>{ tz=Math.max(0.8,Math.round((tz-0.1)*10)/10); put('tree-tz',tz); paint(); });
   document.getElementById('a11yreset').addEventListener('click',()=>{ tz=1; delete root.dataset.theme; put('tree-tz',null); put('tree-theme',null); paint(); });
   document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&!menu.hidden){ menu.hidden=true; btn.setAttribute('aria-expanded','false'); btn.focus(); } });
+})();
+
+// ---- tells an open or cached old copy that a newer version was published ----
+const TREE_VERSION='20261014213313';
+(function(){
+  if(!/^https?:$/.test(location.protocol)) return;
+  const bar=document.getElementById('newver');
+  async function check(){
+    try{
+      const r=await fetch(location.pathname+'?check='+Date.now(),{cache:'no-store'}); if(!r.ok) return;
+      const m=(await r.text()).match(/const TREE_VERSION='([^']+)'/);
+      if(m&&m[1]!==TREE_VERSION) bar.hidden=false;
+    }catch(e){}
+  }
+  document.getElementById('newverbtn').addEventListener('click',()=>{ location.href=location.pathname+'?v='+Date.now(); });
+  check(); setInterval(check,5*60*1000);
+  document.addEventListener('visibilitychange',()=>{ if(!document.hidden) check(); });
 })();
 </script>
 
