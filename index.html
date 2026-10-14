@@ -109,7 +109,7 @@ h1{font-family:var(--display);font-weight:900;font-size:clamp(30px,5vw,48px);lin
 /* detail panel */
 .scrim{position:fixed;inset:0;background:rgba(10,15,18,.45);z-index:20}
 .panel{position:fixed;z-index:21;background:var(--sheet);color:var(--ink);border:1px solid var(--rule);
-  inset-inline:0;bottom:0;max-height:82vh;overflow:auto;border-radius:12px 12px 0 0;
+  inset-inline:0;bottom:0;max-height:calc(82vh / var(--tz,1));overflow:auto;border-radius:12px 12px 0 0;
   padding:18px 18px calc(22px + env(safe-area-inset-bottom,0px));display:grid;gap:12px;box-shadow:0 -8px 30px rgba(0,0,0,.18)}
 .panel .rel{font-size:12px;letter-spacing:.06em;color:var(--accent);font-weight:700}
 .panel h2{font-family:var(--display);font-weight:900;font-size:28px;line-height:1.1;margin:0;text-wrap:balance}
@@ -133,7 +133,7 @@ h1{font-family:var(--display);font-weight:900;font-size:clamp(30px,5vw,48px);lin
   .core > .couple,.core > .kids{grid-column:2}
 }
 @media (min-width:760px){
-  .panel{inset-inline:auto;inset-inline-end:24px;bottom:24px;top:auto;width:440px;border-radius:12px;max-height:calc(100vh - 48px)}
+  .panel{inset-inline:auto;inset-inline-end:24px;bottom:24px;top:auto;width:440px;border-radius:12px;max-height:calc((100vh - 48px) / var(--tz,1))}
 }
 
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
@@ -159,6 +159,15 @@ h1{font-family:var(--display);font-weight:900;font-size:clamp(30px,5vw,48px);lin
 .lightbox .lbzoom button{min-width:44px}
 .lightbox img{display:block;margin:auto;flex:none;background:#fff;user-select:none;-webkit-user-drag:none}
 .lightbox .lbcap{color:#fff;margin:0;text-align:center;font-size:15px;line-height:1.5}
+
+/* accessibility: day/night and text size, from a floating button */
+.wrap,.panel{zoom:var(--tz,1)}
+.a11y{position:fixed;inset-inline-end:14px;bottom:14px;z-index:19;display:flex;flex-direction:column;align-items:flex-end;gap:8px;direction:rtl}
+.a11y>button{font:inherit;font-size:16px;font-weight:700;padding:10px 14px;border-radius:999px;border:2px solid var(--accent);background:var(--accent);color:var(--sheet);cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.25)}
+.a11ymenu{display:grid;gap:6px;padding:10px;border:1px solid var(--rule);border-radius:12px;background:var(--sheet);box-shadow:0 8px 24px rgba(0,0,0,.25);min-width:210px}
+.a11ymenu button{font:inherit;font-size:16px;text-align:start;padding:9px 12px;border-radius:8px;border:1px solid var(--rule);background:var(--paper);color:var(--ink);cursor:pointer}
+.a11ymenu button:hover,.a11ymenu button:focus-visible{border-color:var(--accent);outline:none}
+.a11ymenu .lvl{margin:0;font-size:13px;color:var(--muted);text-align:center}
 </style>
 </head>
 <body>
@@ -234,6 +243,16 @@ h1{font-family:var(--display);font-weight:900;font-size:clamp(30px,5vw,48px);lin
   </section>
 </div>
 
+<div class="a11y" id="a11y">
+  <div class="a11ymenu" id="a11ymenu" hidden>
+    <button type="button" id="a11ytheme">🌙 מצב לילה</button>
+    <button type="button" id="a11ybig">א+ הגדלת טקסט</button>
+    <button type="button" id="a11ysmall">א− הקטנת טקסט</button>
+    <button type="button" id="a11yreset">↺ חזרה לרגיל</button>
+    <p class="lvl" id="a11ylvl">גודל טקסט: 100%</p>
+  </div>
+  <button type="button" id="a11ybtn" aria-expanded="false" aria-controls="a11ymenu">♿ נגישות</button>
+</div>
 <div class="scrim" id="scrim" hidden></div>
 <div class="lightbox" id="lb" role="dialog" aria-modal="true" aria-label="תמונה בגודל מלא" hidden>
   <div class="lbbar"><button type="button" id="lbclose">סגירה ✕</button><span class="lbzoom"><button type="button" id="lbout" aria-label="הקטנה">－</button><button type="button" id="lbfit" aria-label="התאמה למסך">100%</button><button type="button" id="lbin" aria-label="הגדלה">＋</button></span><span><button type="button" id="lbprev">→ הקודם</button> <button type="button" id="lbnext">הבא ←</button></span></div>
@@ -594,6 +613,28 @@ const GAL=[{"t": "ספר הזיכרון של סבנציאן (תל אביב, 1965
   document.addEventListener('keydown',e=>{ if(lb.hidden) return;
     if(e.key==='Escape') closeLB(); else if(e.key==='ArrowLeft') show(cur+1); else if(e.key==='ArrowRight') show(cur-1);
     else if(e.key==='+'||e.key==='=') zoomTo(z*1.5); else if(e.key==='-') zoomTo(z/1.5); else if(e.key==='0') zoomTo(1); });
+})();
+
+// ---- accessibility: day/night + text size, remembered on this device ----
+(function(){
+  const root=document.documentElement, menu=document.getElementById('a11ymenu'), btn=document.getElementById('a11ybtn');
+  const tb=document.getElementById('a11ytheme'), lvl=document.getElementById('a11ylvl');
+  const get=k=>{ try{ return localStorage.getItem(k); }catch(e){ return null; } };
+  const put=(k,v)=>{ try{ v==null?localStorage.removeItem(k):localStorage.setItem(k,v); }catch(e){} };
+  const isDark=()=>root.dataset.theme? root.dataset.theme==='dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+  let tz=parseFloat(get('tree-tz'))||1;
+  function paint(){
+    root.style.setProperty('--tz',tz); lvl.textContent='גודל טקסט: '+Math.round(tz*100)+'%';
+    tb.textContent=isDark()?'☀️ מצב יום':'🌙 מצב לילה';
+  }
+  const t=get('tree-theme'); if(t) root.dataset.theme=t;
+  paint();
+  btn.addEventListener('click',()=>{ menu.hidden=!menu.hidden; btn.setAttribute('aria-expanded',String(!menu.hidden)); });
+  tb.addEventListener('click',()=>{ root.dataset.theme=isDark()?'light':'dark'; put('tree-theme',root.dataset.theme); paint(); });
+  document.getElementById('a11ybig').addEventListener('click',()=>{ tz=Math.min(1.8,Math.round((tz+0.1)*10)/10); put('tree-tz',tz); paint(); });
+  document.getElementById('a11ysmall').addEventListener('click',()=>{ tz=Math.max(0.8,Math.round((tz-0.1)*10)/10); put('tree-tz',tz); paint(); });
+  document.getElementById('a11yreset').addEventListener('click',()=>{ tz=1; delete root.dataset.theme; put('tree-tz',null); put('tree-theme',null); paint(); });
+  document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&!menu.hidden){ menu.hidden=true; btn.setAttribute('aria-expanded','false'); btn.focus(); } });
 })();
 </script>
 
