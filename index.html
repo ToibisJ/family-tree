@@ -9,6 +9,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@500;700;900&family=Assistant:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
+/* the hidden attribute must win over display:grid on the panel and scrim */
+[hidden]{display:none !important}
 /* Layout: archival record-card tree. Four branch columns converge, half by half, into one couple and one child. */
 :root{
   --paper:#EBEFEC; --sheet:#F8FAF8; --ink:#1B2730; --muted:#58676E; --rule:#C3CDCA;
@@ -35,6 +37,7 @@ header.top{display:grid;gap:14px;max-width:70ch}
 .eyebrow{font-size:12px;letter-spacing:.08em;color:var(--muted);font-weight:600}
 h1{font-family:var(--display);font-weight:900;font-size:clamp(30px,5vw,48px);line-height:1.08;margin:0;text-wrap:balance}
 .lede{margin:0;color:var(--muted);font-size:16px}
+.hint{margin:4px 0 0;padding:10px 14px;border:1px solid var(--accent);border-inline-start-width:4px;border-radius:8px;background:var(--sheet);color:var(--ink);font-size:16px;font-weight:600}
 
 .tools{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center}
 .search{display:flex;align-items:center;gap:8px;background:var(--sheet);border:1px solid var(--rule);border-radius:8px;padding:6px 10px;min-width:0;flex:1 1 240px;max-width:360px}
@@ -143,7 +146,8 @@ h1{font-family:var(--display);font-weight:900;font-size:clamp(30px,5vw,48px);lin
   <header class="top">
     <div class="eyebrow">עבודת השורשים · עודכן אוקטובר 2026</div>
     <h1>עץ משפחת טויביס-לוין</h1>
-    <p class="lede">ארבעה ענפים שנפגשים ביונתן: לוין מסבנציאן וקוצ'ר מווילנה וקובנה מצד אמא, טויביס וריבקינד מאוקראינה מצד אבא. לחצו על כל שם כדי לראות מה ידוע עליו ומאיזה מסמך.</p>
+    <p class="lede">ארבעה ענפים שנפגשים ביונתן: לוין מסבנציאן וקוצ'ר מווילנה וקובנה מצד אמא, טויביס וריבקינד מאוקראינה מצד אבא.</p>
+    <p class="hint">👆 לחיצה על שם של אדם פותחת חלון עם הסיפור שלו: מה ידוע עליו, ומאיזה מסמך. סוגרים בכפתור "סגירה" או בלחיצה מחוץ לחלון.</p>
     <div class="tools">
       <label class="search" for="q"><span aria-hidden="true">⌕</span><input id="q" type="search" placeholder="חיפוש שם, למשל: רסל" autocomplete="off"></label>
       <div class="legend" aria-label="מקרא">
