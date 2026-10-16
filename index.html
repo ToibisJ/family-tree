@@ -17,7 +17,7 @@
 /* the hidden attribute must win over display:grid on the panel and scrim */
 [hidden]{display:none !important}
 /* Layout: archival record-card tree. Four branch columns converge, half by half, into one couple and one child. */
-:root{--couple:#D4A017;
+:root{--couple:#D4A017;--mline:#D6336C;
   --paper:#EBEFEC; --sheet:#F8FAF8; --ink:#1B2730; --muted:#58676E; --rule:#C3CDCA;
   --accent:#2C4A86; --accent-soft:#DCE3F1;
   --lost:#8E2E2B; --survived:#2C6B56; --living:#9A6512; --fell:#5B3E86; --died:#6E7B80; --unknown:#B4BEBC;
@@ -25,11 +25,11 @@
   --body:"Assistant","Arial Hebrew","Segoe UI",Arial,sans-serif;
   --mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
 }
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--couple:#E3B341;
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--couple:#E3B341;--mline:#F06595;
   --paper:#11171A; --sheet:#182125; --ink:#E2E8E6; --muted:#97A6AB; --rule:#2D393E;
   --accent:#93ABE3; --accent-soft:#22304D;
   --lost:#E0857C; --survived:#6FC1A4; --living:#E3B45E; --fell:#B79BE6; --died:#8D9BA0; --unknown:#4B575B; color-scheme:dark;}}
-:root[data-theme="dark"]{--couple:#E3B341;
+:root[data-theme="dark"]{--couple:#E3B341;--mline:#F06595;
   --paper:#11171A; --sheet:#182125; --ink:#E2E8E6; --muted:#97A6AB; --rule:#2D393E;
   --accent:#93ABE3; --accent-soft:#22304D;
   --lost:#E0857C; --survived:#6FC1A4; --living:#E3B45E; --fell:#B79BE6; --died:#8D9BA0; --unknown:#4B575B; color-scheme:dark;}
@@ -234,6 +234,7 @@ h1{font-family:var(--display);font-weight:900;font-size:clamp(30px,5vw,48px);lin
 .tvleg{display:flex;flex-wrap:wrap;gap:6px 14px;padding:8px 16px;font-size:12.5px;color:var(--muted);border-bottom:1px solid var(--rule);background:var(--sheet)}
 .tvleg span{display:inline-flex;align-items:center;gap:5px}
 .tvleg .ln{display:inline-block;width:22px;border-top:3px solid var(--accent)}
+.tvleg .ln.f{border-top-color:var(--mline)}
 .tvleg .cpl{display:inline-block;width:22px;height:12px;border:2px solid var(--couple);border-radius:4px}
 .tvleg .dsh{display:inline-block;width:18px;height:12px;border:1px dashed var(--muted);border-radius:3px}
 .tvsc{flex:1;overflow:auto;cursor:grab}
@@ -419,7 +420,7 @@ h1{font-family:var(--display);font-weight:900;font-size:clamp(30px,5vw,48px);lin
   </div>
   <div class="tvleg">
     <span><i class="dot lost"></i>נרצח בשואה</span><span><i class="dot survived"></i>שרד</span><span><i class="dot fell"></i>נפל במערכה</span><span><i class="dot died"></i>נפטר</span><span><i class="dot living"></i>חי</span><span><i class="dot"></i>גורל לא ידוע</span>
-    <span><i class="cpl"></i>בני זוג</span><span><i class="ln"></i>הקו הישיר אל יונתן</span><span><i class="dsh"></i>ממשפחה אחרת</span><span>לחיצה על אדם פותחת את הכרטיס שלו</span>
+    <span><i class="cpl"></i>בני זוג</span><span><i class="ln"></i>הקו הישיר אל יונתן — אל גבר</span><span><i class="ln f"></i>הקו הישיר — אל אישה (משפחת האם או האישה)</span><span><i class="dsh"></i>ממשפחה אחרת</span><span>לחיצה על אדם פותחת את הכרטיס שלו</span>
   </div>
   <div class="tvsc" id="tvsc"><div class="tvst" id="tvst"><svg class="tvl" id="tvl" aria-hidden="true"></svg><div id="tvtree"></div></div></div>
 </section>
@@ -843,8 +844,8 @@ function tvDraw(){
     const kb=u.k.map(k=>[k,TV.host.querySelector('.tcard[data-id="'+k+'"]')]).filter(x=>x[1]).map(x=>[x[0],tvBox(x[1])]); if(!kb.length) return;
     const top=Math.min(...kb.map(x=>x[1].y)); if(top<=sy) return;
     const my=sy+(top-sy)/2+((ui%3)-1)*7; const on=u.c.every(c=>LINE.has(c));
-    kb.forEach(([k,b])=>{ const strong=on&&LINE.has(k);
-      out+='<path d="M'+sx+' '+sy+' V'+my+' H'+(b.x+b.w/2)+' V'+b.y+'" fill="none" stroke="'+(strong?'var(--accent)':'var(--muted)')+'" stroke-opacity="'+(strong?1:.55)+'" stroke-width="'+(strong?3:1.4)+'" stroke-linejoin="round"/>'; });
+    kb.forEach(([k,b])=>{ const strong=on&&LINE.has(k); const fem=strong&&P[k]&&P[k].g==='f';
+      out+='<path d="M'+sx+' '+sy+' V'+my+' H'+(b.x+b.w/2)+' V'+b.y+'" fill="none" stroke="'+(fem?'var(--mline)':strong?'var(--accent)':'var(--muted)')+'" stroke-opacity="'+(strong?1:.55)+'" stroke-width="'+(strong?3:1.4)+'" stroke-linejoin="round"/>'; });
   });
   TV.svg.innerHTML=out;
 }
@@ -1010,7 +1011,7 @@ const GAL=[{"t": "ספר הזיכרון של סבנציאן (תל אביב, 1965
 })();
 
 // ---- tells an open or cached old copy that a newer version was published ----
-const TREE_VERSION='20261016220456';
+const TREE_VERSION='20261016222608';
 (function(){
   if(!/^https?:$/.test(location.protocol)) return;
   const bar=document.getElementById('newver');
