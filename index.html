@@ -216,6 +216,44 @@ h1{font-family:var(--display);font-weight:900;font-size:clamp(30px,5vw,48px);lin
 .chapter h3{font-family:var(--display);font-size:21px;margin:22px 0 6px;border-bottom:2px solid var(--accent);display:table;padding-bottom:2px}
 .chapter p,.chapter li{font-size:16px;line-height:1.75;max-width:72ch}
 .chapter ul{padding-inline-start:20px}
+
+/* family tree chart ("עץ" button per family): full-screen view, one generation per row, SVG lines between parents and children */
+.brhd{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.treebtn{font:inherit;font-size:14px;font-weight:700;display:inline-flex;align-items:center;gap:6px;flex:none;border:1px solid var(--accent);color:var(--accent);background:transparent;border-radius:999px;padding:4px 12px;cursor:pointer}
+.treebtn:hover{background:var(--accent);color:var(--sheet)}
+.treebtn svg{width:16px;height:16px}
+.tv{position:fixed;inset:0;z-index:15;background:var(--paper);display:flex;flex-direction:column;padding-top:env(safe-area-inset-top,0px)}
+.tvhead{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;padding:12px 16px;border-bottom:1px solid var(--rule);background:var(--sheet)}
+.tvhead h2{font-family:var(--display);font-weight:900;font-size:24px;margin:0;line-height:1.1}
+.tvhead p{margin:2px 0 0;font-size:13px;color:var(--muted)}
+.tvtools{display:flex;gap:6px;align-items:center}
+.tvtools button{font:inherit;min-width:36px;height:36px;border-radius:8px;border:1px solid var(--rule);background:var(--paper);color:var(--ink);cursor:pointer;font-size:17px;padding:0 10px}
+.tvtools .zv{font-family:var(--mono);font-size:12px;color:var(--muted);min-width:44px;text-align:center}
+.tvtools .tvx{font-weight:700;font-size:15px}
+.tvleg{display:flex;flex-wrap:wrap;gap:6px 14px;padding:8px 16px;font-size:12.5px;color:var(--muted);border-bottom:1px solid var(--rule);background:var(--sheet)}
+.tvleg span{display:inline-flex;align-items:center;gap:5px}
+.tvleg .ln{display:inline-block;width:22px;border-top:3px solid var(--accent)}
+.tvleg .dsh{display:inline-block;width:18px;height:12px;border:1px dashed var(--muted);border-radius:3px}
+.tvsc{flex:1;overflow:auto;cursor:grab}
+.tvsc.drag{cursor:grabbing}
+.tvst{position:relative;transform-origin:top right;padding:26px 28px 40px;width:max-content;min-width:100%}
+.tvst svg.tvl{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+.tvcomp+.tvcomp{margin-top:56px;padding-top:26px;border-top:1px dashed var(--rule)}
+.tvcomp>h3{font-family:var(--display);font-size:18px;margin:0 0 18px;color:var(--muted)}
+.tvgen{display:flex;align-items:flex-start;gap:40px;justify-content:center;position:relative;margin-bottom:56px}
+.tvgen:last-child{margin-bottom:0}
+.tvgen .gl{position:absolute;right:-10px;top:-18px;font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;color:var(--muted)}
+.tvgrp{display:flex;gap:10px;align-items:flex-start}
+.tvcpl{display:flex;align-items:stretch;gap:5px;border:1px solid var(--rule);border-radius:12px;background:var(--paper);padding:5px}
+.tvcpl .rg{align-self:center;color:var(--muted);font-size:13px}
+.tcard{font:inherit;text-align:right;background:var(--sheet);color:var(--ink);border:1px solid var(--rule);border-radius:9px;padding:7px 10px;min-width:104px;max-width:172px;cursor:pointer;display:flex;flex-direction:column;gap:1px}
+.tcard .tn{display:flex;align-items:center;gap:6px;font-weight:700;font-size:14px;line-height:1.25}
+.tcard .ty{font-family:var(--mono);font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums;direction:ltr;text-align:right}
+.tcard .tr{font-size:11.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tcard.ln{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.tcard.ext{border-style:dashed}
+.tcard.you{background:var(--accent-soft)}
+.tcard:focus-visible,.treebtn:focus-visible,.tvtools button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 </style>
 </head>
 <body>
@@ -223,7 +261,7 @@ h1{font-family:var(--display);font-weight:900;font-size:clamp(30px,5vw,48px);lin
 
 <div class="wrap" dir="rtl" lang="he">
   <header class="top">
-    <div class="eyebrow">עבודת השורשים · עודכן <span id="upd">15.10.2026</span></div>
+    <div class="eyebrow">עבודת השורשים · עודכן <span id="upd">16.10.2026</span></div>
     <h1>עץ משפחת טויביס-לוין</h1>
     <p class="lede">ארבעה ענפים שנפגשים ביונתן: לוין מסבנציאן וקוצ'ר מווילנה וקובנה מצד אמא, טויביס וריבקינד מאוקראינה מצד אבא.</p>
     <p class="hint">👆 לחיצה על שם של אדם פותחת חלון עם הסיפור שלו: מה ידוע עליו, ומאיזה מסמך. סוגרים בכפתור "סגירה" או בלחיצה מחוץ לחלון.</p>
@@ -364,6 +402,20 @@ h1{font-family:var(--display);font-weight:900;font-size:clamp(30px,5vw,48px);lin
   <div class="lbimg"><img id="lbimg" alt=""></div>
   <p class="lbcap" id="lbcap"></p>
 </div>
+<section class="tv" id="tv" role="dialog" aria-modal="true" aria-labelledby="tvt" hidden>
+  <div class="tvhead">
+    <div><h2 id="tvt"></h2><p id="tvo"></p></div>
+    <div class="tvtools">
+      <button type="button" id="tvin" aria-label="הגדלה">+</button><span class="zv" id="tvz">100%</span><button type="button" id="tvout" aria-label="הקטנה">−</button>
+      <button type="button" class="tvx" id="tvclose">סגירה ✕</button>
+    </div>
+  </div>
+  <div class="tvleg">
+    <span><i class="dot lost"></i>נרצח בשואה</span><span><i class="dot survived"></i>שרד</span><span><i class="dot fell"></i>נפל במערכה</span><span><i class="dot died"></i>נפטר</span><span><i class="dot living"></i>חי</span><span><i class="dot"></i>גורל לא ידוע</span>
+    <span><i class="ln"></i>הקו הישיר אל יונתן</span><span><i class="dsh"></i>ממשפחה אחרת</span><span>לחיצה על אדם פותחת את הכרטיס שלו</span>
+  </div>
+  <div class="tvsc" id="tvsc"><div class="tvst" id="tvst"><svg class="tvl" id="tvl" aria-hidden="true"></svg><div id="tvtree"></div></div></div>
+</section>
 <aside class="panel" id="panel" role="dialog" aria-modal="true" aria-labelledby="pn" hidden>
   <button class="close" id="close" type="button">סגירה</button>
   <div class="rel" id="prel"></div>
@@ -609,7 +661,9 @@ function renderBranches(side){
   const host=document.getElementById('br-'+side);
   BR[side].forEach(br=>{
     const card=el('article','branch');
-    const hd=el('div'); hd.append(el('h3',null,br.t)); hd.append(el('div','origin',br.o)); card.append(hd);
+    const hd=el('div','brhd'); const ht=el('div'); ht.append(el('h3',null,br.t)); ht.append(el('div','origin',br.o)); hd.append(ht);
+    const tb=el('button','treebtn'); tb.type='button'; tb.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="5" r="2.5"/><circle cx="5" cy="19" r="2.5"/><circle cx="19" cy="19" r="2.5"/><path d="M12 7.5V12M12 12H5v4.5M12 12h7v4.5"/></svg>עץ';
+    tb.setAttribute('aria-label','עץ משפחת '+br.t); tb.addEventListener('click',()=>openTree(side,br,tb)); hd.append(tb); card.append(hd);
     br.u.forEach(u=>{
       const un=el('div','unit'); un.append(el('div','unit-label',u.l));
       un.append(coupleRow(u.c));
@@ -626,6 +680,144 @@ function renderCore(key){
   if(c.c.length) host.append(coupleRow(c.c));
   const k=el('div','kids'); c.k.forEach(x=>k.append(chip(x))); host.append(k);
 }
+
+// ---- family tree chart: built from BR (+ CORE down to Jonathan) ----
+const TV={el:document.getElementById('tv'),sc:document.getElementById('tvsc'),st:document.getElementById('tvst'),svg:document.getElementById('tvl'),host:document.getElementById('tvtree'),scale:1,from:null,units:[]};
+function allUnits(){ const u=[]; ['father','mother'].forEach(sd=>BR[sd].forEach(b=>b.u.forEach(x=>u.push(x)))); Object.values(CORE).forEach(x=>u.push(x)); return u; }
+function cleanIds(a){ return (a||[]).map(x=>x.replace(/\*$/,'')).filter(x=>P[x]); }
+function lineSet(){ const U=allUnits(), L=new Set(['jonathan']); let ch=true;
+  while(ch){ ch=false; U.forEach(u=>{ if(cleanIds(u.k).some(k=>L.has(k))) cleanIds(u.c).forEach(c=>{ if(!L.has(c)){ L.add(c); ch=true; } }); }); }
+  return L; }
+function homeBranch(){ const m={}; ['father','mother'].forEach(sd=>BR[sd].forEach(b=>b.u.forEach(u=>cleanIds(u.k).forEach(k=>{ if(!m[k]) m[k]=b.t; })))); return m; }
+function treeUnits(side,br){
+  const out=[]; let prev=null;
+  br.u.forEach(u=>{ let c=cleanIds(u.c); if(!c.length && prev && prev.c2) c=cleanIds(prev.c2);
+    out.push({l:u.l,c:c,k:cleanIds(u.k)}); if(u.c2) out.push({l:u.l,c:cleanIds(u.c2),k:[]}); prev=u; });
+  (side==='father'?['father','final']:['mother','final']).forEach(k=>{ const x=CORE[k]; out.push({l:x.h,c:cleanIds(x.c),k:cleanIds(x.k)}); });
+  return out.filter(u=>u.c.length||u.k.length);
+}
+function buildComponents(units){
+  const people=[]; const seen=new Set(); const put=x=>{ if(!seen.has(x)){ seen.add(x); people.push(x); } };
+  units.forEach(u=>{ u.c.forEach(put); u.k.forEach(put); });
+  const adj={}; const add=(a,b,d)=>{ (adj[a]=adj[a]||[]).push([b,d]); };
+  units.forEach(u=>{
+    for(let i=0;i<u.c.length;i++) for(let j=i+1;j<u.c.length;j++){ add(u.c[i],u.c[j],0); add(u.c[j],u.c[i],0); }
+    u.c.forEach(c=>u.k.forEach(k=>{ add(c,k,1); add(k,c,-1); }));
+  });
+  const gen={}, comps=[];
+  const seeds=people.includes('jonathan')?['jonathan'].concat(people):people;
+  seeds.forEach(sd=>{ if(sd in gen) return; const comp=[sd]; gen[sd]=0; const q=[sd];
+    while(q.length){ const a=q.shift(); (adj[a]||[]).forEach(([b,d])=>{ if(!(b in gen)){ gen[b]=gen[a]+d; comp.push(b); q.push(b); } }); }
+    const mn=Math.min(...comp.map(x=>gen[x])); comp.forEach(x=>{ gen[x]-=mn; }); comps.push(comp); });
+  // the main family first, in the order the page lists it
+  comps.sort((a,b)=>people.indexOf(a.find(x=>true))-people.indexOf(b.find(x=>true)));
+  const main=comps.findIndex(c=>c.includes('jonathan')); if(main>0) comps.unshift(comps.splice(main,1)[0]);
+  return {comps:comps,gen:gen};
+}
+function tcard(id,ctx){
+  const p=P[id], b=el('button','tcard'); b.type='button'; b.dataset.id=id;
+  if(ctx.LINE.has(id)) b.classList.add('ln'); if(id==='jonathan') b.classList.add('you');
+  const other=!ctx.births.has(id) && ctx.HOME[id] && ctx.HOME[id]!==ctx.t;
+  if(other) b.classList.add('ext');
+  const nm=el('span','tn'); nm.append(el('i','dot '+(p.st||'none')), document.createTextNode(p.s)); b.append(nm);
+  b.append(el('span','ty',years(id).replace(/\s/g,'')));
+  const place=other?('משפחת '+ctx.HOME[id]):(p.place||'').split('←')[0].trim();
+  if(place) b.append(el('span','tr',place));
+  b.setAttribute('aria-label',(p.n||p.s)+', '+years(id));
+  b.addEventListener('click',()=>openP(id,b));
+  return b;
+}
+function renderTree(side,br){
+  const units=treeUnits(side,br); TV.units=units; TV.host.textContent='';
+  const ctx={LINE:lineSet(),HOME:homeBranch(),t:br.t,births:new Set()};
+  const r=buildComponents(units), comps=r.comps, gen=r.gen;
+  const bunit={}; units.forEach((u,ui)=>{ if(u.c.length) u.k.forEach(k=>{ ctx.births.add(k); if(!(k in bunit)) bunit[k]=ui; }); });
+  const spouses={}; units.forEach(u=>{ for(let i=0;i<u.c.length;i++) for(let j=0;j<u.c.length;j++) if(i!==j) (spouses[u.c[i]]=spouses[u.c[i]]||new Set()).add(u.c[j]); });
+  const kidPos={}; units.forEach(u=>u.k.forEach((k,i)=>{ if(!(k in kidPos)) kidPos[k]=i; }));
+  const gkey=x=>(x in bunit)?('u'+bunit[x]):null;
+  comps.forEach((comp,ci)=>{
+    const box=el('div','tvcomp'); TV.host.append(box);
+    if(ci>0){ const ru=units.find(u=>u.c.some(c=>comp.includes(c))); box.append(el('h3',null,ru?ru.l:'')); }
+    const maxG=Math.max(...comp.map(x=>gen[x])); let prevOrder={};
+    for(let g=0; g<=maxG; g++){
+      const ppl=comp.filter(x=>gen[x]===g); if(!ppl.length) continue;
+      // spouses in the same generation form one couple block
+      const par={}; const f=x=>par[x]===x?x:(par[x]=f(par[x])); ppl.forEach(x=>{ par[x]=x; });
+      ppl.forEach(x=>(spouses[x]||[]).forEach(y=>{ if(gen[y]===g && y in par) par[f(x)]=f(y); }));
+      const clusters={}; ppl.forEach(x=>{ (clusters[f(x)]=clusters[f(x)]||[]).push(x); });
+      // brothers and sisters stay together; a couple joins the two families it comes from
+      const gp={}; const gf=x=>gp[x]===x?x:(gp[x]=gf(gp[x]));
+      Object.values(clusters).forEach(cl=>{ const ks=[...new Set(cl.map(gkey).filter(Boolean))]; ks.forEach(k=>{ if(!(k in gp)) gp[k]=k; }); for(let i=1;i<ks.length;i++) gp[gf(ks[i])]=gf(ks[0]); });
+      const parentPos=k=>{ const u=units[+k.slice(1)]; const v=u.c.map(c=>prevOrder[c]).filter(v=>v!=null); return v.length?v.reduce((a,b)=>a+b,0)/v.length:1e5+(+k.slice(1)); };
+      const groups={};
+      Object.values(clusters).forEach(cl=>{ const ks=cl.map(gkey).filter(Boolean); const root=ks.length?gf(ks[0]):('s'+cl[0]); (groups[root]=groups[root]||[]).push(cl); });
+      const gorder=Object.keys(groups).map(rt=>{ const cls=groups[rt];
+        const keys=[...new Set(cls.flatMap(cl=>cl.map(gkey).filter(Boolean)))].sort((a,b)=>parentPos(a)-parentPos(b));
+        const pos=keys.length?parentPos(keys[0]):2e5+units.findIndex(u=>u.c.some(c=>cls.flat().includes(c)));
+        return {cls:cls,keys:keys,pos:pos}; }).sort((a,b)=>a.pos-b.pos);
+      const row=el('div','tvgen'); row.append(el('span','gl','דור '+(g+1))); box.append(row);
+      const order={}; let n=0;
+      gorder.forEach(G=>{
+        const grp=el('div','tvgrp'); row.append(grp); const items=[];
+        const kidx=x=>{ const k=gkey(x); return k?G.keys.indexOf(k):99; };
+        G.cls.forEach(cl=>{
+          let mem=cl.slice();
+          if(mem.length===2) mem.sort((a,b)=>kidx(a)-kidx(b));
+          else if(mem.length>2){ const deg=x=>mem.filter(y=>(spouses[x]||new Set()).has(y)).length; const c=mem.slice().sort((a,b)=>deg(b)-deg(a))[0]; const rest=mem.filter(x=>x!==c); mem=[rest[0],c].concat(rest.slice(1)); }
+          const ks=[...new Set(mem.map(kidx).filter(i=>i<99))].sort((a,b)=>a-b);
+          let key;
+          if(!ks.length) key=-1;
+          else if(ks.length>1) key=ks[0]*1000+900;
+          else key=ks[0]*1000+Math.min(...mem.map(x=>kidPos[x]!=null?kidPos[x]:50));
+          items.push({mem:mem,key:key});
+        });
+        items.sort((a,b)=>a.key-b.key);
+        items.forEach(it=>{
+          if(it.mem.length>1){ const c=el('div','tvcpl'); it.mem.forEach((x,i)=>{ if(i) c.append(el('span','rg','♥')); c.append(tcard(x,ctx)); order[x]=n++; }); grp.append(c); }
+          else { grp.append(tcard(it.mem[0],ctx)); order[it.mem[0]]=n++; }
+        });
+      });
+      prevOrder=order;
+    }
+  });
+}
+function tvBox(e){ const s=TV.st.getBoundingClientRect(), r=e.getBoundingClientRect(); return {x:(r.left-s.left)/TV.scale,y:(r.top-s.top)/TV.scale,w:r.width/TV.scale,h:r.height/TV.scale}; }
+function tvDraw(){
+  const LINE=lineSet(); TV.svg.setAttribute('viewBox','0 0 '+TV.st.offsetWidth+' '+TV.st.offsetHeight); let out='';
+  TV.units.forEach((u,ui)=>{ if(!u.c.length||!u.k.length) return;
+    const pc=u.c.map(c=>TV.host.querySelector('.tcard[data-id="'+c+'"]')).filter(Boolean); if(!pc.length) return;
+    const pb=pc.map(tvBox); const sx=pb.reduce((a,b)=>a+b.x+b.w/2,0)/pb.length;
+    const cpl=pc[0].closest('.tvcpl'); let sy;
+    if(cpl && pc.every(x=>x.closest('.tvcpl')===cpl)){ const cb=tvBox(cpl); sy=cb.y+cb.h; } else sy=Math.max(...pb.map(b=>b.y+b.h));
+    const kb=u.k.map(k=>[k,TV.host.querySelector('.tcard[data-id="'+k+'"]')]).filter(x=>x[1]).map(x=>[x[0],tvBox(x[1])]); if(!kb.length) return;
+    const top=Math.min(...kb.map(x=>x[1].y)); if(top<=sy) return;
+    const my=sy+(top-sy)/2+((ui%3)-1)*7; const on=u.c.every(c=>LINE.has(c));
+    kb.forEach(([k,b])=>{ const strong=on&&LINE.has(k);
+      out+='<path d="M'+sx+' '+sy+' V'+my+' H'+(b.x+b.w/2)+' V'+b.y+'" fill="none" stroke="'+(strong?'var(--accent)':'var(--muted)')+'" stroke-opacity="'+(strong?1:.55)+'" stroke-width="'+(strong?3:1.4)+'" stroke-linejoin="round"/>'; });
+  });
+  TV.svg.innerHTML=out;
+}
+function tvScale(v){ TV.scale=Math.max(.3,Math.min(1.5,v)); TV.st.style.transform='scale('+TV.scale+')';
+  TV.st.style.marginBottom=((TV.scale-1)*TV.st.offsetHeight)+'px'; TV.st.style.marginLeft=((TV.scale-1)*TV.st.offsetWidth)+'px';
+  document.getElementById('tvz').textContent=Math.round(TV.scale*100)+'%'; }
+function openTree(side,br,btn){
+  TV.from=btn; document.getElementById('tvt').textContent='עץ משפחת '+br.t; document.getElementById('tvo').textContent=br.o;
+  TV.el.hidden=false; document.body.style.overflow='hidden'; TV.st.style.transform=''; TV.st.style.margin=''; TV.scale=1;
+  renderTree(side,br);
+  requestAnimationFrame(()=>{ const full=TV.host.scrollWidth+56; tvScale(Math.min(1,(TV.sc.clientWidth-8)/full)); TV.sc.scrollTop=0; requestAnimationFrame(tvDraw); });
+  document.getElementById('tvclose').focus();
+}
+function closeTree(){ TV.el.hidden=true; document.body.style.overflow=''; if(TV.from) TV.from.focus(); }
+document.getElementById('tvclose').addEventListener('click',closeTree);
+document.getElementById('tvin').addEventListener('click',()=>{ tvScale(TV.scale+.1); requestAnimationFrame(tvDraw); });
+document.getElementById('tvout').addEventListener('click',()=>{ tvScale(TV.scale-.1); requestAnimationFrame(tvDraw); });
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&!TV.el.hidden&&panel.hidden&&document.getElementById('lb').hidden) closeTree(); });
+window.addEventListener('resize',()=>{ if(!TV.el.hidden) requestAnimationFrame(tvDraw); });
+{ let d=null;
+  TV.sc.addEventListener('pointerdown',e=>{ if(e.target.closest('.tcard')||e.pointerType==='touch') return; d={x:e.clientX,y:e.clientY,l:TV.sc.scrollLeft,t:TV.sc.scrollTop}; TV.sc.classList.add('drag'); });
+  window.addEventListener('pointermove',e=>{ if(!d) return; TV.sc.scrollLeft=d.l-(e.clientX-d.x); TV.sc.scrollTop=d.t-(e.clientY-d.y); });
+  window.addEventListener('pointerup',()=>{ d=null; TV.sc.classList.remove('drag'); }); }
+
 renderBranches('father'); renderBranches('mother');
 ['father','mother','first','final','kids','dotanfam','adifam'].forEach(renderCore);
 const lh=document.getElementById('loose');
@@ -767,7 +959,7 @@ const GAL=[{"t": "ספר הזיכרון של סבנציאן (תל אביב, 1965
 })();
 
 // ---- tells an open or cached old copy that a newer version was published ----
-const TREE_VERSION='20261015155246';
+const TREE_VERSION='20261016141613';
 (function(){
   if(!/^https?:$/.test(location.protocol)) return;
   const bar=document.getElementById('newver');
