@@ -64,6 +64,7 @@ h1{font-family:var(--display);font-weight:900;font-size:clamp(30px,5vw,48px);lin
 .branch{background:var(--sheet);border:1px solid var(--rule);border-radius:6px;padding:14px;display:grid;gap:12px;align-content:start;min-width:0}
 .branch h3{margin:0;font-family:var(--display);font-weight:900;font-size:24px;line-height:1.1}
 .branch > div:first-child{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 14px;padding-bottom:4px;border-bottom:1px solid var(--rule)}
+.spell{font-size:13px;color:var(--ink);background:var(--accent-soft);border-radius:6px;padding:6px 9px;margin-top:6px;line-height:1.5;max-width:70ch}
 .branch .origin{font-size:13px;color:var(--muted);margin-top:2px}
 .unit{display:grid;gap:6px;padding-top:10px;border-top:1px dashed var(--rule)}
 .branch > .unit:nth-child(2){border-top:0;padding-top:4px}
@@ -410,7 +411,7 @@ h1{font-family:var(--display);font-weight:900;font-size:clamp(30px,5vw,48px);lin
 </div>
 <section class="tv" id="tv" role="dialog" aria-modal="true" aria-labelledby="tvt" hidden>
   <div class="tvhead">
-    <div><h2 id="tvt"></h2><p id="tvo"></p></div>
+    <div><h2 id="tvt"></h2><p id="tvo"></p><p class="spell" id="tvsp" hidden></p></div>
     <div class="tvtools">
       <button type="button" id="tvin" aria-label="הגדלה">+</button><span class="zv" id="tvz">100%</span><button type="button" id="tvout" aria-label="הקטנה">−</button>
       <button type="button" class="tvx" id="tvclose">סגירה ✕</button>
@@ -599,7 +600,7 @@ const Y={
 };
 const BR={
  father:[
-  {t:"טויביס",o:"אוקראינה ← כפר סבא · עלו 1918–1921",u:[
+  {t:"טויביס",o:"אוקראינה ← כפר סבא · עלו 1918–1921",sp:"השם המקורי: טויוויס. כך הוא נכתב במסמכים: Tojwis (פולנית, אליס איילנד 1907) · Toivis (בית הקברות גאולים, כפר סבא) · Тойвис (רוסית) · Toyvis (מאגרי JewishGen באוקראינה). בעברית: טויוויס, טויביס, טוביס, טויבס.",u:[
     {l:"אביו של יחיאל",c:["noah_gp"],k:["yechiel*"]},
     {l:"אביה של פרידה",c:["meir_nisan"],k:["frida"]},
     {l:"סבא וסבתא רבא",c:["yechiel","frida"],k:["shlomo*","israel","dvora_y","son_y"]},
@@ -689,7 +690,7 @@ function renderBranches(side){
   const host=document.getElementById('br-'+side);
   BR[side].forEach(br=>{
     const card=el('article','branch');
-    const hd=el('div','brhd'); const ht=el('div'); ht.append(el('h3',null,br.t)); ht.append(el('div','origin',br.o)); hd.append(ht);
+    const hd=el('div','brhd'); const ht=el('div'); ht.append(el('h3',null,br.t)); ht.append(el('div','origin',br.o)); if(br.sp) ht.append(el('div','spell',br.sp)); hd.append(ht);
     const tb=el('button','treebtn'); tb.type='button'; tb.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="5" r="2.5"/><circle cx="5" cy="19" r="2.5"/><circle cx="19" cy="19" r="2.5"/><path d="M12 7.5V12M12 12H5v4.5M12 12h7v4.5"/></svg>עץ';
     tb.setAttribute('aria-label','עץ משפחת '+br.t); tb.addEventListener('click',()=>openTree(side,br,tb)); hd.append(tb); card.append(hd);
     br.u.forEach(u=>{
@@ -831,7 +832,7 @@ function tvScale(v){ TV.scale=Math.max(.3,Math.min(1.5,v)); TV.st.style.transfor
   TV.st.style.marginBottom=((TV.scale-1)*TV.st.offsetHeight)+'px'; TV.st.style.marginLeft=((TV.scale-1)*TV.st.offsetWidth)+'px';
   document.getElementById('tvz').textContent=Math.round(TV.scale*100)+'%'; }
 function openTree(side,br,btn){
-  TV.from=btn; document.getElementById('tvt').textContent='עץ משפחת '+br.t; document.getElementById('tvo').textContent=br.o;
+  TV.from=btn; document.getElementById('tvt').textContent='עץ משפחת '+br.t; document.getElementById('tvo').textContent=br.o; const tsp=document.getElementById('tvsp'); tsp.textContent=br.sp||''; tsp.hidden=!br.sp;
   TV.el.hidden=false; document.body.style.overflow='hidden'; TV.st.style.transform=''; TV.st.style.margin=''; TV.scale=1;
   renderTree(side,br);
   requestAnimationFrame(()=>{ const full=TV.host.scrollWidth+56; tvScale(Math.min(1,(TV.sc.clientWidth-8)/full)); TV.sc.scrollTop=0; requestAnimationFrame(tvDraw); });
@@ -989,7 +990,7 @@ const GAL=[{"t": "ספר הזיכרון של סבנציאן (תל אביב, 1965
 })();
 
 // ---- tells an open or cached old copy that a newer version was published ----
-const TREE_VERSION='20261016171106';
+const TREE_VERSION='20261016172555';
 (function(){
   if(!/^https?:$/.test(location.protocol)) return;
   const bar=document.getElementById('newver');
