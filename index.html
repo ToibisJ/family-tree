@@ -696,7 +696,9 @@ function treeUnits(side,br){
   const out=[]; let prev=null;
   br.u.forEach(u=>{ let c=cleanIds(u.c); if(!c.length && prev && prev.c2) c=cleanIds(prev.c2);
     out.push({l:u.l,c:c,k:cleanIds(u.k)}); if(u.c2) out.push({l:u.l,c:cleanIds(u.c2),k:[]}); prev=u; });
-  (side==='father'?['father','final']:['mother','final']).forEach(k=>{ const x=CORE[k]; out.push({l:x.h,c:cleanIds(x.c),k:cleanIds(x.k)}); });
+  const born=new Set(out.flatMap(u=>u.c.length?u.k:[]));
+  const ck=(side==='father'?['father']:['mother']).concat(born.has('jakob')?['first']:[], ['final','kids','dotanfam','adifam']);
+  ck.forEach(k=>{ const x=CORE[k]; if(!x) return; let c=cleanIds(x.c); if(!c.length && k==='kids') c=['jonathan']; out.push({l:x.h,c:c,k:cleanIds(x.k)}); });
   return out.filter(u=>u.c.length||u.k.length);
 }
 function buildComponents(units){
@@ -962,7 +964,7 @@ const GAL=[{"t": "ספר הזיכרון של סבנציאן (תל אביב, 1965
 })();
 
 // ---- tells an open or cached old copy that a newer version was published ----
-const TREE_VERSION='20261016142116';
+const TREE_VERSION='20261016142335';
 (function(){
   if(!/^https?:$/.test(location.protocol)) return;
   const bar=document.getElementById('newver');
