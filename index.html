@@ -192,6 +192,23 @@ h1{font-family:var(--display);font-weight:900;font-size:clamp(30px,5vw,48px);lin
 .pass th{background:var(--paper);font-weight:700}
 .pass td.k{font-family:var(--mono);font-size:12.5px;color:var(--muted);white-space:nowrap}
 .pass .who{font-weight:700;color:var(--accent);cursor:pointer;text-decoration:underline;background:none;border:0;padding:0;font:inherit}
+.tes{max-width:1240px;margin:0 auto;padding:8px 16px 40px}
+.tes h2{font-family:var(--display);font-weight:900;font-size:28px;margin:0 0 4px}
+#tesl{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:14px;align-items:start}
+@media (max-width:640px){#tesl{grid-template-columns:1fr}}
+.tes .gnote{margin:0 0 12px;color:var(--muted);font-size:14px;line-height:1.6}
+.tes .tscard{background:var(--sheet);border:1px solid var(--rule);border-radius:10px;padding:12px 14px;margin:0}
+.tes .tshead{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:baseline;margin:0 0 8px}
+.tes .tshead h3{font-family:var(--display);font-size:20px;margin:0}
+.tes .tshead span{color:var(--muted);font-size:14px}
+.tes ul{list-style:none;margin:0;padding:0}
+.tes li{display:flex;gap:12px;align-items:center;padding:8px 0;border-top:1px solid var(--rule)}
+.tes li .tx{flex:1;min-width:0;font-size:15px;line-height:1.5}
+.tes li .tx small{display:block;color:var(--muted);font-family:var(--mono);font-size:12px}
+.tes .who{font-weight:700;color:var(--accent);cursor:pointer;text-decoration:underline;background:none;border:0;padding:0;font:inherit;text-align:start}
+.tes .tthumb{flex:none;width:64px;height:84px;padding:0;border:1px solid var(--rule);border-radius:6px;overflow:hidden;background:#fff;cursor:zoom-in}
+.tes .tthumb img{width:100%;height:100%;object-fit:cover;object-position:top;display:block}
+.tes .tyv{flex:none;font-size:13px;color:var(--accent);white-space:nowrap}
 @media (max-width:640px){.pass table,.pass tbody,.pass tr,.pass td{display:block;width:100%}.pass thead{display:none}.pass tr{border-bottom:2px solid var(--rule)}.pass td{border:0;padding:4px 10px}}
 
 /* person card: small thumbnails of that person's documents */
@@ -264,7 +281,7 @@ h1{font-family:var(--display);font-weight:900;font-size:clamp(30px,5vw,48px);lin
 
 <div class="wrap" dir="rtl" lang="he">
   <header class="top">
-    <div class="eyebrow">עבודת השורשים · עודכן <span id="upd">18.10.2026</span></div>
+    <div class="eyebrow">עבודת השורשים · עודכן <span id="upd">20.10.2026</span></div>
     <h1>עץ משפחת טויביס-לוין</h1>
     <p class="lede">ארבעה ענפים שנפגשים ביונתן: לוין מסבנציאן וקוצ'ר מווילנה וקובנה מצד אמא, טויביס וריבקינד מאוקראינה מצד אבא.</p>
     <p class="hint">👆 לחיצה על שם של אדם פותחת חלון עם הסיפור שלו: מה ידוע עליו, ומאיזה מסמך. סוגרים בכפתור "סגירה" או בלחיצה מחוץ לחלון.</p>
@@ -390,6 +407,11 @@ h1{font-family:var(--display);font-weight:900;font-size:clamp(30px,5vw,48px);lin
     <h2>מסמכים מהארכיונים</h2>
     <p class="gnote">הסריקות שנמצאו בארכיונים, בגרמניה, בפולין, בארה"ב וביד ושם. לחיצה על תמונה פותחת אותה בגודל מלא. בתמונות הקבוצתיות כתוב מתחת לתמונה איפה עומד כל אחד מבני המשפחה, לפי סדר השמות בספר, מימין לשמאל.</p>
     <div id="gal"></div>
+  </section>
+  <section class="tes" id="testimonies">
+    <h2>דפי העד ביד ושם · מי מילא על מי</h2>
+    <p class="gnote">אחרי המלחמה, מי ששרד מילא ביד ושם "דף עד" על כל אחד מהקרובים שנרצחו. כאן מסודר לפי מי שמילא. לחיצה על שם פותחת את הכרטיס של האדם בעץ. לחיצה על התמונה הקטנה פותחת את הדף המקורי, בכתב היד. כשאין אצלנו סריקה, יש קישור לרשומה באתר יד ושם.</p>
+    <div id="tesl"></div>
   </section>
 </div>
 
@@ -944,6 +966,7 @@ const GAL=[{"t": "ספר הזיכרון של סבנציאן (תל אביב, 1965
     });
     d.append(g); host.append(d);
   });
+  window.openGal=(f,btn)=>{ const i=flat.findIndex(x=>x.f===f); if(i>=0) openLB(i,btn); };
   const lb=document.getElementById('lb'), li=document.getElementById('lbimg'), lc=document.getElementById('lbcap');
   let cur=0, from=null, z=1;
   const box=lb.querySelector('.lbimg'), zl=document.getElementById('lbfit');
@@ -1012,7 +1035,7 @@ const GAL=[{"t": "ספר הזיכרון של סבנציאן (תל אביב, 1965
 })();
 
 // ---- tells an open or cached old copy that a newer version was published ----
-const TREE_VERSION='20261018194638';
+const TREE_VERSION='20261020101214';
 (function(){
   if(!/^https?:$/.test(location.protocol)) return;
   const bar=document.getElementById('newver');
@@ -1030,6 +1053,30 @@ const TREE_VERSION='20261018194638';
 
 // passport list: names open the person card
 document.querySelectorAll('.pass .who').forEach(b=>b.addEventListener('click',()=>openP(b.dataset.open,b)));
+
+// ---- testimonies: who filled a Yad Vashem page about whom ----
+const TES=[{"w": "יעקב לוין", "wid": "jakob", "rel": "סבא", "d": "כולם ב-28 ביוני 1956, באותו מושב עם רבקה", "r": [{"p": "liba", "t": "אמו, ליבא", "n": "דף 97253", "y": "1118807", "f": "g014"}, {"p": "haim_l", "t": "אחיו, חיים", "n": "דף 97254", "f": "g015"}, {"p": "rasl", "t": "אחותו, רסל פפקין", "f": "g018"}, {"p": "papkin", "t": "בעלה של רסל, חיים פפקין", "n": "דף 97260", "y": "793166", "f": "g029"}, {"p": "sarah_l", "t": "אחותו, שרה שמוקלר", "n": "דף 97258", "y": "1411116", "f": "g027"}, {"p": "pinia", "t": "בעלה של שרה, פיניה שמוקלר", "n": "דף 97257", "y": "927393", "f": "g028"}, {"p": "shm_kid1", "t": "הילד הגדול של שרה ופיניה, בן 8", "y": "9004522"}, {"p": "shm_kid2", "t": "הילד הקטן של שרה ופיניה, בן 5", "y": "9004523"}, {"p": "rachel_l", "t": "אחותו, רחל", "y": "735053"}, {"p": "leib_kov", "t": "בעלה של רחל, לייב לוין מקובנה", "n": "דף 97256", "y": "2025237", "f": "g016"}]}, {"w": "רבקה לוין", "wid": "rivka", "rel": "סבתא", "d": "28 ביוני 1956, 20 ביוני 1957 ו-28 ביוני 1957", "r": [{"p": "estera", "t": "אמה, אסתרה", "n": "דף 97262 · 28.6.1956", "y": "1634595", "f": "g017"}, {"p": "motel", "t": "אביה, מוטל", "n": "20.6.1957", "y": "453702", "f": "g023"}, {"p": "yaakov_k2", "t": "אחיה, יעקב", "y": "8760245"}, {"p": "tzipora_k", "t": "אחותה, ציפורה", "y": "8760246"}, {"p": "chaim_n", "t": "אחיה, חיים נחום", "y": "8760247"}, {"p": "icek", "t": "דודה, יצחק, השחקן", "n": "28.6.1956", "y": "1355427", "f": "g019"}, {"p": "yenta", "t": "דודתה, ינטה יודלביץ'", "n": "28.6.1957", "y": "853712"}, {"p": "feibish", "t": "בעלה של ינטה, פייביש (חתום \"בקה לוין\")", "y": "766972"}, {"p": "judel_child", "t": "הבן של ינטה ופייביש, בן 4 (חתום \"בקה לוין\")", "y": "9018585"}, {"p": "sara_wj", "t": "דודתה, שרה וויינר", "y": "943749"}, {"p": "khana_wj", "t": "בת הדודה, חנה וויינר, בת 9", "y": "8892515"}]}, {"w": "שכנא לוין", "wid": "shachna", "rel": "אחיו של סבא יעקב", "d": "18 באוקטובר 1956", "r": [{"p": "elhanan", "t": "אביו, אלחנן", "f": "g020"}, {"p": "rasl", "t": "אחותו, רסל פפקין", "n": "דף 578250", "f": "g021"}, {"p": "rachel_l", "t": "אחותו, רחל", "f": "g022"}]}, {"w": "גרשון קוריצקי", "rel": "גיס של גיטל, מטולה", "d": "1 ביולי 1958", "r": [{"p": "gitel", "t": "גיטל, אשתו הראשונה של סבא יעקב", "f": "g024"}]}, {"w": "גולדה בושקניץ", "rel": "אחות של גיטל", "r": [{"p": "gitel", "t": "אחותה, גיטל", "y": "1503219"}, {"p": "dvora_l", "t": "דבורה, הבת של יעקב וגיטל", "y": "1703411", "f": "g025"}]}, {"w": "חיה קופליק", "rel": "אחות של גיטל", "r": [{"p": "gitel", "t": "אחותה, גיטל", "y": "1533538"}]}, {"w": "שלמה קרינגל", "wid": "shlomo_kr", "rel": "בן דוד של אסתרה, פתח תקווה", "d": "28 באוקטובר 1956", "r": [{"p": "abram_g", "t": "אברהם גורדון, בעלה של אחותו רוזה", "y": "360905", "f": "g030"}, {"p": "sara_g", "t": "שרה גורדון, הבת של רוזה ואברהם", "y": "8732821"}, {"p": "lea_kr", "t": "אחותו, לאה", "y": "1970571", "f": "g031"}, {"p": "chaya_kr", "t": "אחותו, חיה", "y": "1434343", "f": "g032"}]}, {"w": "יוסף קרינגל", "wid": "yosef_k", "rel": "בן דוד של אסתרה, פתח תקווה", "d": "16 ביולי 1957", "r": [{"p": "lea_kr", "t": "אחותו, לאה", "y": "445703", "f": "g033"}, {"p": "chaya_kr", "t": "אחותו, חיה", "y": "16629871", "f": "g034"}, {"p": "rivka_kant", "t": "דודתו, רבקה קנטורוביץ'", "y": "1608641", "f": "g036"}, {"p": "chaim_kant", "t": "חיים קנטורוביץ'", "y": "1977564", "f": "g037"}, {"t": "משה טבריסוק, בעלה של אסתר סלוצקי", "y": "1101075", "f": "g035"}, {"t": "בן דודו, אברהם לייב פלוצקי", "y": "1029459", "f": "g038"}]}];
+(function(){
+  const host=document.getElementById('tesl'); if(!host) return;
+  TES.forEach(g=>{
+    const c=el('div','tscard'), h=el('div','tshead'), t=el('h3');
+    if(g.wid&&P[g.wid]){ const b=el('button','who',g.w); b.type='button'; b.addEventListener('click',()=>openP(g.wid,b)); t.append(b); } else t.textContent=g.w;
+    h.append(t, el('span',null,g.rel+(g.d?' · '+g.d:'')+' · '+g.r.length+(g.r.length===1?' דף':' דפים')));
+    const ul=el('ul');
+    g.r.forEach(r=>{
+      const li=el('li'), tx=el('div','tx');
+      if(r.p&&P[r.p]){ const b=el('button','who',r.t); b.type='button'; b.addEventListener('click',()=>openP(r.p,b)); tx.append(b); } else tx.append(document.createTextNode(r.t));
+      const k=[r.n, r.y?'פריט '+r.y:null].filter(Boolean).join(' · '); if(k) tx.append(el('small',null,k));
+      li.append(tx);
+      if(r.f){ const b=el('button','tthumb'); b.type='button'; b.setAttribute('aria-label','הדף המקורי: '+r.t);
+        const im=document.createElement('img'); im.src='gallery/'+r.f+'t.jpg'; im.alt=''; im.loading='lazy'; b.append(im);
+        b.addEventListener('click',()=>window.openGal&&window.openGal(r.f,b)); li.append(b); }
+      else if(r.y){ const a=el('a','tyv','ביד ושם ↗'); a.href='https://collections.yadvashem.org/he/names/'+r.y; a.target='_blank'; a.rel='noopener'; li.append(a); }
+      ul.append(li);
+    });
+    c.append(h, ul); host.append(c);
+  });
+})();
 
 // ---- install as an app (only where the app files exist: the GitHub site) ----
 (function(){
