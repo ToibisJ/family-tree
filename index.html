@@ -963,10 +963,11 @@ function buildComponents(units){
   // when two lines of one family meet, a child can land on its parents' row: push it, and the spouse it married, down a row
   for(let it=0,ch=1;ch&&it<50;it++){ ch=0; units.forEach(u=>{ if(!u.c.length) return; const g=Math.max(...u.c.map(c=>gen[c]));
     u.c.forEach(c=>{ if(gen[c]<g){ gen[c]=g; ch=1; } }); u.k.forEach(k=>{ if(gen[k]<g+1){ gen[k]=g+1; ch=1; } }); }); }
-  // and parents left two rows above all their children come down to sit right above them
+  // and parents left two rows above all their children come down to sit right above them, unless that would part them from their brothers and sisters
   const lim=x=>Math.min(...units.filter(u=>u.c.includes(x)&&u.k.length).map(u=>Math.min(...u.k.map(k=>gen[k]))-1));
+  const alone=(x,t)=>units.every(u=>!u.c.length||!u.k.includes(x)||u.k.every(s=>s===x||gen[s]===t));
   for(let it=0,ch=1;ch&&it<50;it++){ ch=0; units.forEach(u=>{ if(!u.c.length||!u.k.length) return; const t=Math.min(...u.c.map(lim));
-    if(isFinite(t)&&u.c.every(c=>gen[c]<t)){ u.c.forEach(c=>{ gen[c]=t; }); ch=1; } }); }
+    if(isFinite(t)&&u.c.every(c=>gen[c]<t&&alone(c,t))){ u.c.forEach(c=>{ gen[c]=t; }); ch=1; } }); }
   // the main family first, in the order the page lists it
   comps.sort((a,b)=>people.indexOf(a.find(x=>true))-people.indexOf(b.find(x=>true)));
   const main=comps.findIndex(c=>c.includes('jonathan')); if(main>0) comps.unshift(comps.splice(main,1)[0]);
