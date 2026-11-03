@@ -1046,14 +1046,20 @@ function renderTree(side,br){
   };
   paint(null); if(TV.el.hidden) return;
   // untangle: pull every family toward the parents and children it is drawn to, and keep the layout with the fewest crossing lines
-  tvDraw(); let best={c:tvCross(),h:null};
+  tvDraw(); let best={c:tvScore(),h:null};
   for(const mode of ['both','dn','up','both','dn','both']){ if(!best.c) break;
     const x={}; TV.host.querySelectorAll('.tcard').forEach(b=>{ const r=b.getBoundingClientRect(); x[b.dataset.id]=r.left+r.width/2; });
     const h={}; Object.keys(x).forEach(p=>{ const n=nb[p]||{up:[],dn:[]}; const v=(mode==='up'?n.up:mode==='dn'?n.dn:n.up.concat(n.dn)).filter(q=>q in x); h[p]=-(v.length?v.reduce((a,q)=>a+x[q],0)/v.length:x[p]); });
-    paint(h); tvDraw(); const c=tvCross(); if(c<best.c) best={c:c,h:h};
+    paint(h); tvDraw(); const c=tvScore(); if(c<best.c) best={c:c,h:h};
   }
   paint(best.h);
 }
+// a line that runs down through someone else's card (or between a couple) reads as if it came from them, so it costs more than a crossing
+function tvThru(){ const bs=[...TV.host.querySelectorAll('.tvcpl, .tvgrp > .tcard')].map(tvBox); let n=0;
+  TV.svg.querySelectorAll('path').forEach(p=>{ const t=p.getAttribute('d').match(/[MVH]|-?[\d.]+/g); let x=0,y=0;
+    for(let j=0;j<t.length;){ const c=t[j++]; if(c==='M'){ x=+t[j++]; y=+t[j++]; } else if(c==='V'){ const ny=+t[j++]; const a=Math.min(y,ny),b=Math.max(y,ny);
+      bs.forEach(r=>{ if(x>r.x-4&&x<r.x+r.w+4&&r.y>a+1&&r.y+r.h<b-1) n++; }); y=ny; } else x=+t[j++]; } }); return n; }
+function tvScore(){ return tvCross()+3*tvThru(); }
 function tvCross(){ const H=[],V=[];
   TV.svg.querySelectorAll('path').forEach((p,i)=>{ const t=p.getAttribute('d').match(/[MVH]|-?[\d.]+/g); let x=0,y=0;
     for(let j=0;j<t.length;){ const c=t[j++]; if(c==='M'){ x=+t[j++]; y=+t[j++]; } else if(c==='V'){ const ny=+t[j++]; V.push([i,x,Math.min(y,ny),Math.max(y,ny)]); y=ny; } else { const nx=+t[j++]; H.push([i,y,Math.min(x,nx),Math.max(x,nx)]); x=nx; } } });
@@ -1071,17 +1077,22 @@ function tvDraw(){
     const top=Math.min(...kb.map(x=>x[1].y)); if(top<=sy) return;
     const xs=kb.map(([k,b])=>u.c.length===1?Math.min(Math.max(sx,b.x+14),b.x+b.w-14):b.x+b.w/2), lo=Math.min(sx,...xs), hi=Math.max(sx,...xs);
     // a line never runs along another family's line at the same height, and crosses as few lines as it can
-    const y0=sy+(top-sy)/2+((ui%3)-1)*7; let my=y0, bad=1e9;
+    const y0=top-Math.min(40,(top-sy)/2)+((ui%3)-1)*7; let my=y0, bad=1e9; // in the gap just above the children, even when a row lies between
     for(const d of [0,7,-7,14,-14]){ const y=y0+d; if(y<=sy+3||y>=top-3) continue;
       const vs=[[sx,sy,y]].concat(xs.map((x,i)=>[x,y,kb[i][1].y]));
       const cost=10*lanes.filter(L=>Math.abs(L.y-y)<4&&Math.min(L.b,hi)-Math.max(L.a,lo)>2&&(L.sx!==sx||L.sy!==sy)).length
         +vlines.filter(v=>v[0]>lo+1&&v[0]<hi-1&&y>v[1]+1&&y<v[2]-1).length
         +lanes.filter(L=>vs.some(v=>v[0]>L.a+1&&v[0]<L.b-1&&L.y>v[1]+1&&L.y<v[2]-1)).length;
       if(cost<bad){ bad=cost; my=y; } if(!bad) break; }
-    lanes.push({y:my,a:lo,b:hi,sx:sx,sy:sy}); vlines.push([sx,sy,my]); xs.forEach((x,i)=>vlines.push([x,my,kb[i][1].y])); const on=u.c.every(c=>LINE.has(c));
+    // when a row lies between, step aside to a gap instead of running down through someone else's card
+    const mids=[...TV.host.querySelectorAll('.tvcpl, .tvgrp > .tcard')].map(tvBox).filter(r=>r.y>sy+1&&r.y+r.h<top-1), inBox=x=>mids.some(r=>x>r.x-6&&x<r.x+r.w+6);
+    let gx=sx, y1=null;
+    if(inBox(sx)){ const c=mids.flatMap(r=>[r.x-12,r.x+r.w+12]).filter(x=>!inBox(x)).sort((a,b)=>Math.abs(a-sx)-Math.abs(b-sx));
+      if(c.length){ gx=c[0]; y1=sy+Math.min(16,(Math.min(...mids.map(r=>r.y))-sy)/2); } }
+    lanes.push({y:my,a:Math.min(lo,gx),b:Math.max(hi,gx),sx:sx,sy:sy}); if(y1==null) vlines.push([sx,sy,my]); else vlines.push([sx,sy,y1],[gx,y1,my]); xs.forEach((x,i)=>vlines.push([x,my,kb[i][1].y])); const on=u.c.every(c=>LINE.has(c));
     kb.forEach(([k,b],i)=>{ const strong=on&&LINE.has(k); const fem=strong&&P[k]&&P[k].g==='f';
       const ex=xs[i];
-      out+='<path d="M'+sx+' '+sy+' V'+my+' H'+ex+' V'+b.y+'" fill="none" stroke="'+(fem?'var(--mline)':strong?'var(--accent)':'var(--muted)')+'" stroke-opacity="'+(strong?1:.55)+'" stroke-width="'+(strong?3:1.4)+'" stroke-linejoin="round"/>'; });
+      out+='<path d="M'+sx+' '+sy+(y1==null?'':' V'+y1+' H'+gx)+' V'+my+' H'+ex+' V'+b.y+'" fill="none" stroke="'+(fem?'var(--mline)':strong?'var(--accent)':'var(--muted)')+'" stroke-opacity="'+(strong?1:.55)+'" stroke-width="'+(strong?3:1.4)+'" stroke-linejoin="round"/>'; });
   });
   TV.svg.innerHTML=out;
 }
