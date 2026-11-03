@@ -960,6 +960,9 @@ function buildComponents(units){
   seeds.forEach(sd=>{ if(sd in gen) return; const comp=[sd]; gen[sd]=0; const q=[sd];
     while(q.length){ const a=q.shift(); (adj[a]||[]).forEach(([b,d])=>{ if(!(b in gen)){ gen[b]=gen[a]+d; comp.push(b); q.push(b); } }); }
     const mn=Math.min(...comp.map(x=>gen[x])); comp.forEach(x=>{ gen[x]-=mn; }); comps.push(comp); });
+  // when two lines of one family meet, a child can land on its parents' row: push it, and the spouse it married, down a row
+  for(let it=0,ch=1;ch&&it<50;it++){ ch=0; units.forEach(u=>{ if(!u.c.length) return; const g=Math.max(...u.c.map(c=>gen[c]));
+    u.c.forEach(c=>{ if(gen[c]<g){ gen[c]=g; ch=1; } }); u.k.forEach(k=>{ if(gen[k]<g+1){ gen[k]=g+1; ch=1; } }); }); }
   // the main family first, in the order the page lists it
   comps.sort((a,b)=>people.indexOf(a.find(x=>true))-people.indexOf(b.find(x=>true)));
   const main=comps.findIndex(c=>c.includes('jonathan')); if(main>0) comps.unshift(comps.splice(main,1)[0]);
