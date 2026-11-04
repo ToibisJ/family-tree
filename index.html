@@ -1076,6 +1076,7 @@ function renderTree(side,br){
   units.forEach(u=>{ if(!u.al||!u.c.length||!u.k.length) return; const kc=TV.host.querySelector('.tcard[data-id="'+u.k[0]+'"]'); const g=kc&&kc.closest('.tvgrp'); const pc=u.c.map(c=>TV.host.querySelector('.tcard[data-id="'+c+'"]')).filter(Boolean); if(!g||!pc.length) return;
     const cx=e=>{ const r=e.getBoundingClientRect(); return r.left+r.width/2; }; const s=g.getBoundingClientRect().width/(g.offsetWidth||1)||1;
     g.style.position='relative'; g.style.left=Math.round((pc.reduce((a,e)=>a+cx(e),0)/pc.length-cx(g))/s)+'px'; });
+  tvStraighten();
 }
 // a line that runs down through someone else's card (or between a couple) reads as if it came from them, so it costs more than a crossing
 function tvThru(){ const bs=[...TV.host.querySelectorAll('.tvcpl, .tvgrp > .tcard')].map(tvBox); let n=0;
@@ -1083,6 +1084,33 @@ function tvThru(){ const bs=[...TV.host.querySelectorAll('.tvcpl, .tvgrp > .tcar
     for(let j=0;j<t.length;){ const c=t[j++]; if(c==='M'){ x=+t[j++]; y=+t[j++]; } else if(c==='V'){ const ny=+t[j++]; const a=Math.min(y,ny),b=Math.max(y,ny);
       bs.forEach(r=>{ if(x>r.x-4&&x<r.x+r.w+4&&r.y>a+1&&r.y+r.h<b-1) n++; }); y=ny; } else x=+t[j++]; } }); return n; }
 function tvScore(){ return tvCross()+3*tvThru(); }
+// a line that steps sideways (a zigzag) is harder to follow: total sideways length of all lines
+function tvZig(){ let s=0; TV.svg.querySelectorAll('path').forEach(p=>{ const d=p.getAttribute('d'); const m=d.match(/^M(-?[\d.]+) /), e=d.match(/H(-?[\d.]+) V-?[\d.]+$/); if(m&&e) s+=Math.abs(+m[1]-+e[1]); }); return s; }
+// slide each family along its row, within the free space beside it, to sit under its parents or over its children,
+// so lines run straight down; a move is kept only when crossings and zigzags go down
+function tvStraighten(){
+  const GAP=14, units=TV.units, CB={}; TV.host.querySelectorAll('.tcard').forEach(e=>{ if(!CB[e.dataset.id]) CB[e.dataset.id]=e; });
+  const W=TV.st.offsetWidth, cost=()=>{ tvDraw(); return tvCross()*400+tvThru()*1200+tvZig(); };
+  const sxOf=u=>{ const pb=u.c.map(c=>CB[c]).filter(Boolean).map(tvBox); return pb.length?pb.reduce((a,b)=>a+b.x+b.w/2,0)/pb.length:null; };
+  const mid=kb=>{ const lo=Math.min(...kb.map(b=>b.x)), hi=Math.max(...kb.map(b=>b.x+b.w)); return (lo+hi)/2; };
+  let cur=cost();
+  for(let pass=0;pass<1;pass++){ let moved=0;
+    TV.host.querySelectorAll('.tvgen').forEach(row=>{ const gs=[...row.querySelectorAll(':scope > .tvgrp')];
+      gs.forEach(g=>{ const ids=[...g.querySelectorAll('.tcard')].map(c=>c.dataset.id), gb=tvBox(g), cands=new Set();
+        units.forEach(u=>{ if(!u.c.length) return; const ks=u.k.filter(k=>ids.includes(k)); if(!ks.length) return; const sx=sxOf(u); if(sx==null) return;
+          const kb=ks.map(k=>tvBox(CB[k])); if(kb.length===1){ const b=kb[0]; cands.add(sx-(b.x+b.w/2)); if(sx<b.x+14) cands.add(sx-(b.x+14)); if(sx>b.x+b.w-14) cands.add(sx-(b.x+b.w-14)); } else cands.add(sx-mid(kb)); });
+        units.forEach(u=>{ if(!u.c.some(c=>ids.includes(c))) return; const sx=sxOf(u); if(sx==null) return; const kb=u.k.map(k=>CB[k]).filter(Boolean).map(tvBox); if(kb.length) cands.add(mid(kb)-sx); });
+        const others=gs.filter(o=>o!==g).map(tvBox);
+        const maxR=Math.min(W-(gb.x+gb.w),...others.filter(o=>o.x>=gb.x+gb.w-1).map(o=>o.x-GAP-(gb.x+gb.w)));
+        const maxL=Math.max(-gb.x,...others.filter(o=>o.x+o.w<=gb.x+1).map(o=>o.x+o.w+GAP-gb.x));
+        const base=parseFloat(g.style.left)||0, prevPos=g.style.position, prevLeft=g.style.left; let best=null;
+        [...cands].map(d=>Math.max(maxL,Math.min(maxR,d))).filter(d=>Math.abs(d)>=2).forEach(d=>{
+          g.style.position='relative'; g.style.left=Math.round(base+d)+'px'; const c=cost(); if(c<cur-1&&(!best||c<best.c)) best={c:c,d:d}; });
+        if(best){ g.style.position='relative'; g.style.left=Math.round(base+best.d)+'px'; cur=best.c; moved++; } else { g.style.left=prevLeft; g.style.position=prevPos; }
+      }); });
+    if(!moved) break; }
+  tvDraw();
+}
 function tvCross(){ const H=[],V=[];
   TV.svg.querySelectorAll('path').forEach((p,i)=>{ const t=p.getAttribute('d').match(/[MVH]|-?[\d.]+/g); let x=0,y=0;
     for(let j=0;j<t.length;){ const c=t[j++]; if(c==='M'){ x=+t[j++]; y=+t[j++]; } else if(c==='V'){ const ny=+t[j++]; V.push([i,x,Math.min(y,ny),Math.max(y,ny)]); y=ny; } else { const nx=+t[j++]; H.push([i,y,Math.min(x,nx),Math.max(x,nx)]); x=nx; } } });
@@ -1090,15 +1118,15 @@ function tvCross(){ const H=[],V=[];
 }
 function tvBox(e){ const s=TV.st.getBoundingClientRect(), r=e.getBoundingClientRect(); return {x:(r.left-s.left)/TV.scale,y:(r.top-s.top)/TV.scale,w:r.width/TV.scale,h:r.height/TV.scale}; }
 function tvDraw(){
-  const LINE=lineSet(); TV.svg.setAttribute('viewBox','0 0 '+TV.st.offsetWidth+' '+TV.st.offsetHeight); let out=''; const lanes=[], vlines=[];
+  const LINE=lineSet(); TV.svg.setAttribute('viewBox','0 0 '+TV.st.offsetWidth+' '+TV.st.offsetHeight); let out=''; const lanes=[], vlines=[]; const CB={}; TV.host.querySelectorAll('.tcard').forEach(e=>{ if(!CB[e.dataset.id]) CB[e.dataset.id]=e; }); const ALL=[...TV.host.querySelectorAll('.tvcpl, .tvgrp > .tcard')].map(tvBox);
   TV.units.forEach((u,ui)=>{ if(!u.c.length||!u.k.length) return;
-    const pc=u.c.map(c=>TV.host.querySelector('.tcard[data-id="'+c+'"]')).filter(Boolean); if(!pc.length) return;
+    const pc=u.c.map(c=>CB[c]).filter(Boolean); if(!pc.length) return;
     const pb=pc.map(tvBox); const sx=pb.reduce((a,b)=>a+b.x+b.w/2,0)/pb.length;
     const cpl=pc[0].closest('.tvcpl'); let sy;
     if(cpl && pc.every(x=>x.closest('.tvcpl')===cpl)){ const cb=tvBox(cpl); sy=cb.y+cb.h; } else sy=Math.max(...pb.map(b=>b.y+b.h));
-    const kb=u.k.map(k=>[k,TV.host.querySelector('.tcard[data-id="'+k+'"]')]).filter(x=>x[1]).map(x=>[x[0],tvBox(x[1])]); if(!kb.length) return;
+    const kb=u.k.map(k=>[k,CB[k]]).filter(x=>x[1]).map(x=>[x[0],tvBox(x[1])]); if(!kb.length) return;
     const top=Math.min(...kb.map(x=>x[1].y)); if(top<=sy) return;
-    const xs=kb.map(([k,b])=>u.c.length===1?Math.min(Math.max(sx,b.x+14),b.x+b.w-14):b.x+b.w/2), lo=Math.min(sx,...xs), hi=Math.max(sx,...xs);
+    const xs=kb.map(([k,b])=>(sx>=b.x+14&&sx<=b.x+b.w-14)?sx:u.c.length===1?Math.min(Math.max(sx,b.x+14),b.x+b.w-14):b.x+b.w/2), lo=Math.min(sx,...xs), hi=Math.max(sx,...xs);
     // a line never runs along another family's line at the same height, and crosses as few lines as it can
     const y0=top-Math.min(40,(top-sy)/2)+((ui%3)-1)*7; let my=y0, bad=1e9; // in the gap just above the children, even when a row lies between
     for(const d of [0,7,-7,14,-14]){ const y=y0+d; if(y<=sy+3||y>=top-3) continue;
@@ -1108,7 +1136,7 @@ function tvDraw(){
         +lanes.filter(L=>vs.some(v=>v[0]>L.a+1&&v[0]<L.b-1&&L.y>v[1]+1&&L.y<v[2]-1)).length;
       if(cost<bad){ bad=cost; my=y; } if(!bad) break; }
     // when a row lies between, step aside to a gap instead of running down through someone else's card
-    const mids=[...TV.host.querySelectorAll('.tvcpl, .tvgrp > .tcard')].map(tvBox).filter(r=>r.y>sy+1&&r.y+r.h<top-1), inBox=x=>mids.some(r=>x>r.x-6&&x<r.x+r.w+6);
+    const mids=ALL.filter(r=>r.y>sy+1&&r.y+r.h<top-1), inBox=x=>mids.some(r=>x>r.x-6&&x<r.x+r.w+6);
     let gx=sx, y1=null;
     if(inBox(sx)){ const c=mids.flatMap(r=>[r.x-12,r.x+r.w+12]).filter(x=>!inBox(x)).sort((a,b)=>Math.abs(a-sx)-Math.abs(b-sx));
       if(c.length){ gx=c[0]; y1=sy+Math.min(16,(Math.min(...mids.map(r=>r.y))-sy)/2); } }
