@@ -800,7 +800,7 @@ const BR={
     {l:"הוריו של ר' משה בן שמעון · פרנקפורט",c:["shimon_ga","beila_ga"],k:["moshe_ns*"]},
     {l:"אביו של המהרשש\"ך · שוטן",c:["yuzpa_k"],k:["shotten_s*"]},
     {l:"הוריה של רייצ'ן · פרנקפורט",c:["shotten_s","chana_zk"],k:["reichen_s*"]},
-    {l:"אביו של ר' מרדכי מרגליות",c:["moshe_mgs"],k:["mordechai_m*"]},{l:"הוריו של ר' אשר אנשיל",c:["mordechai_m","mella_h"],k:["asher_a*"]},{l:"הוריו של רבי שמחה בונים איגר",c:["yehuda_le","rachel_w"],k:["simcha_be*"]},{l:"הוריו של ר' שמואל סופר",c:["moshe_ns","reichen_s"],k:["shmuel_cs*"]},
+    {l:"אביו של ר' מרדכי מרגליות",c:["moshe_mgs"],k:["mordechai_m*"],ov:true},{l:"הוריו של ר' אשר אנשיל",c:["mordechai_m","mella_h"],k:["asher_a*"]},{l:"הוריו של רבי שמחה בונים איגר",c:["yehuda_le","rachel_w"],k:["simcha_be*"]},{l:"הוריו של ר' שמואל סופר",c:["moshe_ns","reichen_s"],k:["shmuel_cs*"]},
     {l:"אביו של ר' משה חזן",c:["zalman_chf"],k:["moshe_chf*"]},{l:"אביו של ר' יעקב רפאל",c:["moshe_chf"],k:["yaakov_rch*"]},{l:"אביו של ר' אלחנן",c:["yaakov_rch"],k:["elchanan_k*"]},{l:"אביה של הינדלה",c:["shlomo_zh"],k:["hindle_b*"],near:"yaakov_rch"},
     {l:"אביו של ר' שמואל · לייטרסדורף, וינה",c:["yitzchak_ld"],k:["shmuel_ld*"]},{l:"אביו של ר' יצחק לייטרסדורף",c:["peres_sh"],k:["yitzchak_ld*"]},{l:"אביה של יהודית ייטל",c:["shmuel_ld"],k:["yitel_l*"]},{l:"הוריו של רבי עקיבא איגר הזקן · הלברשטט",c:["simcha_be","tzipora_h"],k:["akiva_e1*"],near:"shmuel_ld"},{l:"הוריה של גיטל · רבי עקיבא איגר הזקן, פרשבורג",c:["akiva_e1","yitel_l"],k:["gitel_e*"]},{l:"אביו של ר' אליעזר ליפמן גרץ",c:["wolf_g"],k:["eliezer_g*"],sh:-2,ov:true},{l:"אביו של רבי אברהם ברודא",c:["shaul_br"],k:["avraham_br*"],near:"gretz_d",ov:true},{l:"אביה של אשת רבי אברהם ברודא · בומסלא",c:["eliezer_g"],k:["gretz_d*"],ov:true},{l:"הוריו של ר' משה ברודא · בומסלא",c:["avraham_br","gretz_d"],k:["moshe_br*"]},{l:"הוריה של שרה · ר' משה ברודא, וורמס",c:["moshe_br","reisha_f"],k:["sarah_b*"]},{l:"אביו של ר' שמואל גינז שלזינגר",c:["asher_a"],k:["shmuel_gs*"]},{l:"הוריו של רבי משה גינז שלזינגר · אייזנשטט",c:["shmuel_gs","sarah_b"],k:["moshe_ginz*"],near:"akiva_e1"},{l:"הוריו של רבי עקיבא איגר · אייזנשטט",c:["moshe_ginz","gitel_e"],k:["akiva_e*"]},{l:"הוריה של רייזל",c:["elchanan_k","hindle_b"],k:["reizel_cs*"]},
     {l:"הוריו של החתם סופר · פרנקפורט",c:["shmuel_cs","reizel_cs"],k:["chatam*"]},
@@ -1089,11 +1089,11 @@ function tvOver(){
   const CB={}; TV.host.querySelectorAll('.tcard').forEach(e=>{ if(!CB[e.dataset.id]) CB[e.dataset.id]=e; }); const W=TV.st.offsetWidth, GAP=14;
   const mid=bs=>{ const lo=Math.min(...bs.map(b=>b.x)), hi=Math.max(...bs.map(b=>b.x+b.w)); return (lo+hi)/2; };
   const ovs=TV.units.filter(u=>u.ov); if(!ovs.length) return;
-  for(let it=0;it<2;it++) ovs.forEach(u=>{ const pc=u.c.map(c=>CB[c]).filter(Boolean), kc=u.k.map(k=>CB[k]).filter(Boolean); if(!pc.length||!kc.length) return;
+  for(let it=0,mv=1;mv&&it<6;it++){ mv=0; ovs.forEach(u=>{ const pc=u.c.map(c=>CB[c]).filter(Boolean), kc=u.k.map(k=>CB[k]).filter(Boolean); if(!pc.length||!kc.length) return;
     const g=pc[0].closest('.tvgrp'); if(!g) return; const gb=tvBox(g), d0=mid(kc.map(tvBox))-pc.map(tvBox).reduce((a,b)=>a+b.x+b.w/2,0)/pc.length;
     const others=[...g.parentElement.querySelectorAll(':scope > .tvgrp')].filter(o=>o!==g).map(tvBox);
     const maxR=Math.min(W-(gb.x+gb.w),...others.filter(o=>o.x>=gb.x+gb.w-1).map(o=>o.x-GAP-(gb.x+gb.w))), maxL=Math.max(-gb.x,...others.filter(o=>o.x+o.w<=gb.x+1).map(o=>o.x+o.w+GAP-gb.x));
-    const d=Math.max(maxL,Math.min(maxR,d0)); if(Math.abs(d)<1) return; g.style.position='relative'; g.style.left=Math.round((parseFloat(g.style.left)||0)+d)+'px'; });
+    const d=Math.max(maxL,Math.min(maxR,d0)); if(Math.abs(d)<1) return; g.style.position='relative'; g.style.left=Math.round((parseFloat(g.style.left)||0)+d)+'px'; mv=1; }); }
   tvDraw();
 }
 // a line that steps sideways (a zigzag) is harder to follow: total sideways length of all lines
