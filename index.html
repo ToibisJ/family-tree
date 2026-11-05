@@ -1260,6 +1260,8 @@ const VIEWS={sofer:{side:'esti',t:'סופר-שרייבר'}};
 const VIEW=VIEWS[new URLSearchParams(location.search).get('view')]||null;
 const VSET=(()=>{ if(!VIEW) return null; const br=BR[VIEW.side].find(b=>b.t===VIEW.t); const s=new Set();
   br.u.forEach(u=>[...u.c,...(u.c2||[]),...u.k].forEach(x=>s.add(x.replace('*','')))); return s; })();
+// every picture, before a view narrows the gallery: a person's card always shows its own documents
+const GALALL=GAL.flatMap(s=>s.i);
 if(VSET){ GAL.forEach(sec=>{ sec.i=sec.i.filter(it=>(it.p||[]).some(p=>VSET.has(p))); });
   for(let i=GAL.length-1;i>=0;i--) if(!GAL[i].i.length) GAL.splice(i,1); }
 (function(){
@@ -1292,6 +1294,7 @@ if(VSET){ GAL.forEach(sec=>{ sec.i=sec.i.filter(it=>(it.p||[]).some(p=>VSET.has(
     });
     d.append(g); host.append(d);
   });
+  GALALL.forEach(it=>{ if(!flat.includes(it)) flat.push(it); }); // not shown at the bottom of a view, but still opens from a card
   window.openGal=(f,btn)=>{ const i=flat.findIndex(x=>x.f===f); if(i>=0) openLB(i,btn); };
   const lb=document.getElementById('lb'), li=document.getElementById('lbimg'), lc=document.getElementById('lbcap');
   let cur=0, from=null, z=1;
