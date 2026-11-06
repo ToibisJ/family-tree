@@ -1123,7 +1123,7 @@ function tvZig(){ let s=0; TV.svg.querySelectorAll('path').forEach(p=>{ const d=
 // slide each family along its row, within the free space beside it, to sit under its parents or over its children,
 // so lines run straight down; a move is kept only when crossings and zigzags go down
 function tvStraighten(){
-  const GAP=14, units=TV.units, CB={}; TV.host.querySelectorAll('.tcard').forEach(e=>{ if(!CB[e.dataset.id]) CB[e.dataset.id]=e; });
+  const GAP=14, PAD=40, units=TV.units, CB={}; TV.host.querySelectorAll('.tcard').forEach(e=>{ if(!CB[e.dataset.id]) CB[e.dataset.id]=e; });
   const W=TV.st.offsetWidth, cost=()=>{ tvDraw(); return tvCross()*400+tvThru()*1200+tvZig(); };
   const sxOf=u=>{ const pb=u.c.map(c=>CB[c]).filter(Boolean).map(tvBox); return pb.length?pb.reduce((a,b)=>a+b.x+b.w/2,0)/pb.length:null; };
   const mid=kb=>{ const lo=Math.min(...kb.map(b=>b.x)), hi=Math.max(...kb.map(b=>b.x+b.w)); return (lo+hi)/2; };
@@ -1135,8 +1135,8 @@ function tvStraighten(){
           const kb=ks.map(k=>tvBox(CB[k])); if(kb.length===1){ const b=kb[0]; cands.add(sx-(b.x+b.w/2)); if(sx<b.x+14) cands.add(sx-(b.x+14)); if(sx>b.x+b.w-14) cands.add(sx-(b.x+b.w-14)); } else cands.add(sx-mid(kb)); });
         units.forEach(u=>{ if(!u.c.some(c=>ids.includes(c))) return; const sx=sxOf(u); if(sx==null) return; const kb=u.k.map(k=>CB[k]).filter(Boolean).map(tvBox); if(kb.length) cands.add(mid(kb)-sx); });
         const others=gs.filter(o=>o!==g).map(tvBox);
-        const maxR=Math.min(W-(gb.x+gb.w),...others.filter(o=>o.x>=gb.x+gb.w-1).map(o=>o.x-GAP-(gb.x+gb.w)));
-        const maxL=Math.max(-gb.x,...others.filter(o=>o.x+o.w<=gb.x+1).map(o=>o.x+o.w+GAP-gb.x));
+        const maxR=Math.min(W-PAD-(gb.x+gb.w),...others.filter(o=>o.x>=gb.x+gb.w-1).map(o=>o.x-GAP-(gb.x+gb.w)));
+        const maxL=Math.max(PAD-gb.x,...others.filter(o=>o.x+o.w<=gb.x+1).map(o=>o.x+o.w+GAP-gb.x));
         const base=parseFloat(g.style.left)||0, prevPos=g.style.position, prevLeft=g.style.left; let best=null;
         [...cands].map(d=>Math.max(maxL,Math.min(maxR,d))).filter(d=>Math.abs(d)>=2).forEach(d=>{
           g.style.position='relative'; g.style.left=Math.round(base+d)+'px'; const c=cost(); if(c<cur-1&&(!best||c<best.c)) best={c:c,d:d}; });
