@@ -19,7 +19,7 @@
 /* Layout: archival record-card tree. Four branch columns converge, half by half, into one couple and one child. */
 :root{--couple:#D4A017;--mline:#D6336C;
   --paper:#EBEFEC; --sheet:#F8FAF8; --ink:#1B2730; --muted:#58676E; --rule:#C3CDCA;
-  --accent:#2C4A86; --accent-soft:#DCE3F1;
+  --accent:#2C4A86;--lk2:#2F7FB8; --accent-soft:#DCE3F1;
   --lost:#8E2E2B; --survived:#2C6B56; --living:#9A6512; --fell:#5B3E86; --died:#6E7B80; --unknown:#B4BEBC;
   --display:"Frank Ruhl Libre","David","Times New Roman",serif;
   --body:"Assistant","Arial Hebrew","Segoe UI",Arial,sans-serif;
@@ -27,11 +27,11 @@
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--couple:#E3B341;--mline:#F06595;
   --paper:#11171A; --sheet:#182125; --ink:#E2E8E6; --muted:#97A6AB; --rule:#2D393E;
-  --accent:#93ABE3; --accent-soft:#22304D;
+  --accent:#93ABE3;--lk2:#6EC3E8; --accent-soft:#22304D;
   --lost:#E0857C; --survived:#6FC1A4; --living:#E3B45E; --fell:#B79BE6; --died:#8D9BA0; --unknown:#4B575B; color-scheme:dark;}}
 :root[data-theme="dark"]{--couple:#E3B341;--mline:#F06595;
   --paper:#11171A; --sheet:#182125; --ink:#E2E8E6; --muted:#97A6AB; --rule:#2D393E;
-  --accent:#93ABE3; --accent-soft:#22304D;
+  --accent:#93ABE3;--lk2:#6EC3E8; --accent-soft:#22304D;
   --lost:#E0857C; --survived:#6FC1A4; --living:#E3B45E; --fell:#B79BE6; --died:#8D9BA0; --unknown:#4B575B; color-scheme:dark;}
 
 *{box-sizing:border-box}
@@ -844,7 +844,7 @@ const BR={
     {l:"ההורים של שרה · סירט ← וינה",c:["akiva_s","ester_ak"],k:["sara_s*","moshe_ak","lea_ak"]},
     {l:"סבא וסבתא של אסתי · נישאו 1921",c:["avraham_ss","sara_s"],k:["raizel_s","binyamin_s","miriam_s","shlomo_s","ruth_o*","david_s"]},{l:"רזי ושלום אייזנברג",c:["raizel_s","shalom_e"],k:["eisenberg_kids"],al:true},{l:"בנימין שמואל ואביה סופר",c:["binyamin_s","aviya_s"],k:["binyamin_kids"],al:true},{l:"פנחס ומרים אברהמי",c:["miriam_s","pinchas_a"],k:["avrahami_kids"],al:true},{l:"שלמה ועליזה סופר",c:["shlomo_s","aliza_s"],k:["shlomo_kids"],al:true},{l:"דוד וסינדי סופר",c:["david_s","cindy_s"],k:["david_kids"],al:true},
     {l:"ההורים של אסתי",c:["ruth_o","asher_o"],k:["esti_w*"],al:true},{l:"אסתי ויונתן טויביס",c:["esti_w","jonathan"],k:["naama","shira","uriel","avigail"],al:true},{l:"אביה של בלימכן",c:["yehuda_tr"],k:["blimchen_t*"],near:"beila_ga"},{l:"אביה של פרומט · מץ",c:["moshe_sgm"],k:["fromet_m*"]}]},
-  {t:"עובדיה · קוסטיס",fo:true,info:["romaniote_info"],lk:[["yosas_kos","kostis_sibs",31],["matthaios_ov","ovadias_kids"]],o:"חלקיס ← מיסטרה ← וולוס ← אתונה ← ילטרה ← חיפה",sp:"יהודים רומניוטים: יהודי יוון מימי הרומאים, לא מגורשי ספרד. העדות הראשונה: סולומון עובדיה מחלקיס, 1724. ביוון היה שם המשפחה עובדיאס.",u:[
+  {t:"עובדיה · קוסטיס",fo:true,info:["romaniote_info"],lk:[["yosas_kos","kostis_sibs",31],["matthaios_ov","ovadias_kids",0,"lk2"]],o:"חלקיס ← מיסטרה ← וולוס ← אתונה ← ילטרה ← חיפה",sp:"יהודים רומניוטים: יהודי יוון מימי הרומאים, לא מגורשי ספרד. העדות הראשונה: סולומון עובדיה מחלקיס, 1724. ביוון היה שם המשפחה עובדיאס.",u:[
     {l:"אביו של יעקב עובדיאס",c:["menachem_ov"],k:["yaakov_ov*"]},
     {l:"יעקב ומזלטו · המאה ה-19",c:["yaakov_ov","mazalto_ov2"],k:["yosef_ov*","ovadias_sib","esther_cr","yaakov_kids"]},
     {l:"מנחם בכור וזיבולה עובדיאס · חלקיס",c:["ovadias_sib","ziboula_cr"],k:["eftichia_ov*","sterina_yula"]},
@@ -1201,10 +1201,10 @@ function tvDraw(){
       out+='<path d="M'+sx+' '+sy+(y1==null?'':' V'+y1+' H'+gx)+' V'+my+' H'+ex+' V'+b.y+'" fill="none" stroke="'+(fem?'var(--mline)':strong?'var(--accent)':'var(--muted)')+'" stroke-opacity="'+(strong?1:.55)+'" stroke-width="'+(strong?3:1.4)+'" stroke-linejoin="round"/>'; });
   });
   // a branch can join two relatives that are not parent and child with one dashed line (lk:[[a,b]])
-  ((TV.br&&TV.br.lk)||[]).forEach(([a,b,up])=>{ const A=CB[a], B=CB[b]; if(!A||!B) return; let lo=tvBox(A), hi=tvBox(B); if(lo.y<hi.y){ const t=lo; lo=hi; hi=t; }
+  ((TV.br&&TV.br.lk)||[]).forEach(([a,b,up,col])=>{ const A=CB[a], B=CB[b]; if(!A||!B) return; let lo=tvBox(A), hi=tvBox(B); if(lo.y<hi.y){ const t=lo; lo=hi; hi=t; }
     // two cards in the same row: the line runs above the row and ends at the top of the second card
     const x1=lo.x+lo.w/2, x2=hi.x+hi.w/2, y=lo.y-(up||19), yEnd=Math.abs(lo.y-hi.y)<lo.h/2?hi.y:hi.y+hi.h;
-    out+='<path class="lk" d="M'+x1+' '+lo.y+' V'+y+' H'+x2+' V'+yEnd+'" fill="none" stroke="var(--accent)" stroke-width="2" stroke-dasharray="6 5" stroke-linejoin="round"/>'; });
+    out+='<path class="lk" d="M'+x1+' '+lo.y+' V'+y+' H'+x2+' V'+yEnd+'" fill="none" stroke="var(--'+(col||'accent')+')" stroke-width="2" stroke-dasharray="6 5" stroke-linejoin="round"/>'; });
   TV.svg.innerHTML=out;
 }
 function tvScale(v){ TV.scale=Math.max(.3,Math.min(1.5,v)); TV.st.style.transform='scale('+TV.scale+')';
