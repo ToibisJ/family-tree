@@ -274,6 +274,7 @@ h1{font-family:var(--display);font-weight:900;font-size:clamp(30px,5vw,48px);lin
 .tcard .tr{font-size:11.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tcard.ln{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
 .tcard.ext{border-style:dashed}
+.tcard .tj{font-size:11px;font-weight:600;color:var(--accent)}
 .tcard.you{background:var(--accent-soft)}
 .tcard:focus-visible,.treebtn:focus-visible,.tvtools button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 
@@ -824,7 +825,7 @@ const Y={chaim_zl:['?','?'],akiva_pp:['1839','1902'],leah_pp:['?','1900'],hinda_
 };
 const BR={
  esti:[
-  {t:"סופר-שרייבר",o:"פרשבורג ← אגר ← וינה ← קורפו ← גוריציה ← פיומה ← ירושלים",sp:"צאצאי החתם סופר. אסתי היא דור 7 לחתם סופר דרך סבתה שרה, ודור 6 דרך סבה ר' אברהם.",u:[
+  {t:"סופר-שרייבר",plainYou:true,jump:{asher_o:"עובדיה · קוסטיס"},o:"פרשבורג ← אגר ← וינה ← קורפו ← גוריציה ← פיומה ← ירושלים",sp:"צאצאי החתם סופר. אסתי היא דור 7 לחתם סופר דרך סבתה שרה, ודור 6 דרך סבה ר' אברהם.",u:[
     {l:"הוריו של ר' שמעון \"מן הנשר הזהב\"",c:["moshe_mms","fromet_m"],k:["shimon_ga*"]},
     {l:"הוריה של ביילה",c:["zalman_kp","blimchen_t"],k:["beila_ga*"],flip:true},
     {l:"זלמן כ\"ץ ובתו חנה · אחותה של ביילה מצד האב",c:["zalman_kp"],k:["chana_zk*"]},
@@ -844,7 +845,7 @@ const BR={
     {l:"ההורים של שרה · סירט ← וינה",c:["akiva_s","ester_ak"],k:["sara_s*","moshe_ak","lea_ak"]},
     {l:"סבא וסבתא של אסתי · נישאו 1921",c:["avraham_ss","sara_s"],k:["raizel_s","binyamin_s","miriam_s","shlomo_s","ruth_o*","david_s"]},{l:"רזי ושלום אייזנברג",c:["raizel_s","shalom_e"],k:["eisenberg_kids"],al:true},{l:"בנימין שמואל ואביה סופר",c:["binyamin_s","aviya_s"],k:["binyamin_kids"],al:true},{l:"פנחס ומרים אברהמי",c:["miriam_s","pinchas_a"],k:["avrahami_kids"],al:true},{l:"שלמה ועליזה סופר",c:["shlomo_s","aliza_s"],k:["shlomo_kids"],al:true},{l:"דוד וסינדי סופר",c:["david_s","cindy_s"],k:["david_kids"],al:true},
     {l:"ההורים של אסתי",c:["ruth_o","asher_o"],k:["esti_w*"],al:true},{l:"אסתי ויונתן טויביס",c:["esti_w","jonathan"],k:["naama","shira","uriel","avigail"],al:true},{l:"אביה של בלימכן",c:["yehuda_tr"],k:["blimchen_t*"],near:"beila_ga"},{l:"אביה של פרומט · מץ",c:["moshe_sgm"],k:["fromet_m*"]}]},
-  {t:"עובדיה · קוסטיס",fo:true,info:["romaniote_info"],lk:[["yosas_kos","kostis_sibs",31],["matthaios_ov","ovadias_kids",0,"lk2"]],o:"חלקיס ← מיסטרה ← וולוס ← אתונה ← ילטרה ← חיפה",sp:"יהודים רומניוטים: יהודי יוון מימי הרומאים, לא מגורשי ספרד. העדות הראשונה: סולומון עובדיה מחלקיס, 1724. ביוון היה שם המשפחה עובדיאס.",u:[
+  {t:"עובדיה · קוסטיס",fo:true,plainYou:true,jump:{ruth_o:"סופר-שרייבר"},info:["romaniote_info"],lk:[["yosas_kos","kostis_sibs",31],["matthaios_ov","ovadias_kids",0,"lk2"]],o:"חלקיס ← מיסטרה ← וולוס ← אתונה ← ילטרה ← חיפה",sp:"יהודים רומניוטים: יהודי יוון מימי הרומאים, לא מגורשי ספרד. העדות הראשונה: סולומון עובדיה מחלקיס, 1724. ביוון היה שם המשפחה עובדיאס.",u:[
     {l:"אביו של יעקב עובדיאס",c:["menachem_ov"],k:["yaakov_ov*"]},
     {l:"יעקב ומזלטו · המאה ה-19",c:["yaakov_ov","mazalto_ov2"],k:["yosef_ov*","ovadias_sib","esther_cr","yaakov_kids"]},
     {l:"מנחם בכור וזיבולה עובדיאס · חלקיס",c:["ovadias_sib","ziboula_cr"],k:["eftichia_ov*","sterina_yula"]},
@@ -1032,7 +1033,7 @@ function buildComponents(units){
 }
 function tcard(id,ctx){
   const p=P[id], b=el('button','tcard'); b.type='button'; b.dataset.id=id;
-  if(ctx.LINE.has(id)) b.classList.add('ln'); if(id==='jonathan') b.classList.add('you');
+  if(ctx.LINE.has(id)) b.classList.add('ln'); if(id==='jonathan'&&!(TV.br&&TV.br.plainYou)) b.classList.add('you'); // plainYou: Jonathan's card looks like everyone else's in this tree
   const other=!ctx.births.has(id) && ctx.HOME[id] && ctx.HOME[id]!==ctx.t;
   if(other) b.classList.add('ext');
   const nm=el('span','tn'); nm.append(el('i','dot '+(p.st||'none')), document.createTextNode(p.s)); b.append(nm);
@@ -1040,7 +1041,10 @@ function tcard(id,ctx){
   const place=other?('משפחת '+ctx.HOME[id]):(p.place||'').split('←')[0].trim();
   if(place) b.append(el('span','tr',place));
   b.setAttribute('aria-label',(p.n||p.s)+', '+years(id));
-  b.addEventListener('click',()=>openP(id,b));
+  // a card can lead to another family tree instead of opening its details: jump:{id:"tree title"}
+  const jt=TV.br&&TV.br.jump&&TV.br.jump[id];
+  if(jt){ b.append(el('span','tj','← לאילן '+jt)); b.setAttribute('aria-label',(p.n||p.s)+', '+years(id)+' · מעבר לאילן '+jt); }
+  b.addEventListener('click',()=>{ if(jt){ for(const s in BR){ const t2=BR[s].find(x=>x.t===jt); if(t2){ openTree(s,t2,TV.from); return; } } } openP(id,b); });
   return b;
 }
 function renderTree(side,br){
