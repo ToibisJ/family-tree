@@ -1033,7 +1033,8 @@ function buildComponents(units){
 }
 function tcard(id,ctx){
   const p=P[id], b=el('button','tcard'); b.type='button'; b.dataset.id=id;
-  if(ctx.LINE.has(id)) b.classList.add('ln'); if(id==='jonathan'&&!(TV.br&&TV.br.plainYou)) b.classList.add('you'); // plainYou: Jonathan's card looks like everyone else's in this tree
+  const plainMe=id==='jonathan'&&TV.br&&TV.br.plainYou; // plainYou: Jonathan's card looks like everyone else's in this tree, without the blue frame or fill
+  if(ctx.LINE.has(id)&&!plainMe) b.classList.add('ln'); if(id==='jonathan'&&!plainMe) b.classList.add('you');
   const other=!ctx.births.has(id) && ctx.HOME[id] && ctx.HOME[id]!==ctx.t;
   if(other) b.classList.add('ext');
   const nm=el('span','tn'); nm.append(el('i','dot '+(p.st||'none')), document.createTextNode(p.s)); b.append(nm);
