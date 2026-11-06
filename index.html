@@ -1203,7 +1203,7 @@ function tvDraw(){
   // a branch can join two relatives that are not parent and child with one dashed line (lk:[[a,b]])
   ((TV.br&&TV.br.lk)||[]).forEach(([a,b])=>{ const A=CB[a], B=CB[b]; if(!A||!B) return; let lo=tvBox(A), hi=tvBox(B); if(lo.y<hi.y){ const t=lo; lo=hi; hi=t; }
     // two cards in the same row: the line runs above the row and ends at the top of the second card
-    const x1=lo.x+lo.w/2, x2=hi.x+hi.w/2, y=lo.y-12, yEnd=Math.abs(lo.y-hi.y)<lo.h/2?hi.y:hi.y+hi.h;
+    const x1=lo.x+lo.w/2, x2=hi.x+hi.w/2, y=lo.y-19, yEnd=Math.abs(lo.y-hi.y)<lo.h/2?hi.y:hi.y+hi.h;
     out+='<path class="lk" d="M'+x1+' '+lo.y+' V'+y+' H'+x2+' V'+yEnd+'" fill="none" stroke="var(--accent)" stroke-width="2" stroke-dasharray="6 5" stroke-linejoin="round"/>'; });
   TV.svg.innerHTML=out;
 }
