@@ -127,6 +127,8 @@ h1{font-family:var(--display);font-weight:900;font-size:clamp(30px,5vw,48px);lin
 .facts dt{display:table;margin:16px 0 0;font-weight:700;font-size:17px;color:var(--ink);border-bottom:2px solid var(--accent);padding-bottom:2px}
 .facts dt:first-child{margin-top:4px}
 .facts dd{margin:6px 0 0;min-width:0;line-height:1.65;white-space:pre-line}
+.facts dd .pp{display:block}
+.facts dd .pp + .pp{margin-top:.45em}
 .num{font-family:var(--mono);font-variant-numeric:tabular-nums;direction:ltr;unicode-bidi:isolate}
 .panel .note{margin:0;line-height:1.65;max-width:62ch;white-space:pre-line}
 .panel .src{margin:0;font-size:12.5px;color:var(--muted);border-top:1px solid var(--rule);padding-top:10px}
@@ -1269,7 +1271,7 @@ function openP(id,btn){
   const st=document.getElementById('pst'); st.textContent='';
   if(p.st){ st.append(el('i','dot '+p.st)); st.append(document.createTextNode(STL[p.st][p.g==='f'?'f':'m'])); }
   const f=document.getElementById('pfacts'); f.textContent='';
-  const add=(k,v)=>{ if(!v) return; f.append(el('dt',null,k)); const dd=el('dd'); dd.textContent=v; f.append(dd); };
+  const add=(k,v)=>{ if(!v) return; f.append(el('dt',null,k)); const dd=el('dd'); v.split('\n\n').forEach(t=>dd.append(el('span','pp',t))); f.append(dd); }; /* a blank line between items becomes a small gap, not a full empty line */
   const yy=Y[id]||['?','?']; const unk=v=>(!v||v==='?')?'לא ידוע':(v.startsWith('~')?'בערך '+v.slice(1):v);
   const fem=p.g==='f';
   if(!p.grp) add(fem?'נולדה':'נולד', p.b || unk(yy[0]));
