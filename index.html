@@ -19,7 +19,7 @@
 /* Layout: archival record-card tree. Four branch columns converge, half by half, into one couple and one child. */
 :root{--couple:#D4A017;--mline:#D6336C;
   --paper:#EBEFEC; --sheet:#F8FAF8; --ink:#1B2730; --muted:#58676E; --rule:#C3CDCA;
-  --accent:#2C4A86;--lk2:#2F7FB8; --accent-soft:#DCE3F1;
+  --accent:#2C4A86;--lk2:#2F7FB8;--navy:#1F3A6B; --accent-soft:#DCE3F1;
   --lost:#8E2E2B; --survived:#2C6B56; --living:#9A6512; --fell:#5B3E86; --died:#6E7B80; --unknown:#B4BEBC;
   --display:"Frank Ruhl Libre","David","Times New Roman",serif;
   --body:"Assistant","Arial Hebrew","Segoe UI",Arial,sans-serif;
@@ -27,11 +27,11 @@
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--couple:#E3B341;--mline:#F06595;
   --paper:#11171A; --sheet:#182125; --ink:#E2E8E6; --muted:#97A6AB; --rule:#2D393E;
-  --accent:#93ABE3;--lk2:#6EC3E8; --accent-soft:#22304D;
+  --accent:#93ABE3;--lk2:#6EC3E8;--navy:#4C6FB8; --accent-soft:#22304D;
   --lost:#E0857C; --survived:#6FC1A4; --living:#E3B45E; --fell:#B79BE6; --died:#8D9BA0; --unknown:#4B575B; color-scheme:dark;}}
 :root[data-theme="dark"]{--couple:#E3B341;--mline:#F06595;
   --paper:#11171A; --sheet:#182125; --ink:#E2E8E6; --muted:#97A6AB; --rule:#2D393E;
-  --accent:#93ABE3;--lk2:#6EC3E8; --accent-soft:#22304D;
+  --accent:#93ABE3;--lk2:#6EC3E8;--navy:#4C6FB8; --accent-soft:#22304D;
   --lost:#E0857C; --survived:#6FC1A4; --living:#E3B45E; --fell:#B79BE6; --died:#8D9BA0; --unknown:#4B575B; color-scheme:dark;}
 
 *{box-sizing:border-box}
@@ -259,6 +259,8 @@ h1{font-family:var(--display);font-weight:900;font-size:clamp(30px,5vw,48px);lin
 .tvsc.drag{cursor:grabbing}
 .tvst{position:relative;transform-origin:top right;padding:26px 28px 40px;width:max-content;min-width:100%}
 .tvst .tvinfo{position:absolute;top:70px;left:110px;z-index:2;transform:scale(1.6);transform-origin:top left}
+.tvst .tvinfo .tcard{border:2px solid var(--navy)}
+.tvst .tvinfo .tcard + .tcard{margin-top:8px}
 .tvst svg.tvl{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
 .tvcomp+.tvcomp{margin-top:56px;padding-top:26px;border-top:1px dashed var(--rule)}
 .tvcomp>h3{font-family:var(--display);font-size:18px;margin:0 0 18px;color:var(--muted)}
