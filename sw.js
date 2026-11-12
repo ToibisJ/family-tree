@@ -1,4 +1,4 @@
-// Family tree app: the page always comes from the network when online (so updates show),
+// Family tree app: the page always comes from the network when online, checked past the browser cache (so updates show at once),
 // images are kept on the device so the gallery also opens offline.
 const CACHE = 'tree-v1';
 self.addEventListener('install', e => { self.skipWaiting();
@@ -11,7 +11,7 @@ self.addEventListener('fetch', e => {
   if (u.origin !== location.origin) return;
   const isPage = r.mode === 'navigate' || u.pathname.endsWith('/') || u.pathname.endsWith('.html');
   if (isPage) {
-    e.respondWith(fetch(r).then(res => {
+    e.respondWith(fetch(r, { cache: 'no-cache' }).then(res => {
       if (!u.search.includes('check=')) { const c = res.clone(); caches.open(CACHE).then(x => x.put(u.pathname, c)); }
       return res;
     }).catch(() => caches.match(u.pathname).then(m => m || caches.match('./'))));
