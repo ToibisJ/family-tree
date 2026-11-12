@@ -511,7 +511,7 @@ ol.rstops .rn.g{background:var(--guess0)} ol.rstops .rn.t{background:var(--told0
   </div>
   <div class="tvleg">
     <span><i class="dot living"></i>חי</span><span><i class="dot died"></i>נפטר</span><span><i class="dot survived"></i>ניצול שואה</span><span><i class="dot lost"></i>נרצח בשואה</span><span><i class="dot fell"></i>נפל במערכה</span><span><i class="dot"></i>גורל לא ידוע</span>
-    <span><i class="cpl"></i>בני זוג</span><span><i class="ln"></i>הקו הישיר אל יונתן — אל גבר</span><span><i class="ln f"></i>הקו הישיר — אל אישה (משפחת האם או האישה)</span><span><i class="dsh"></i>ממשפחה אחרת</span><span><i class="pq">הורים <b>?</b></i>לא ידוע מי היו ההורים</span><span><i class="pqx">נחקר · לא נמצא</i>חיפשנו, ואין מידע על דורות קודמים</span><span>לחיצה על אדם פותחת את הכרטיס שלו</span>
+    <span><i class="cpl"></i>בני זוג</span><span><i class="ln"></i>הקו הישיר אל יונתן — אל גבר</span><span><i class="ln f"></i>הקו הישיר — אל אישה (משפחת האם או האישה)</span><span><i class="dsh"></i>ממשפחה אחרת</span><span><i class="pq">הורים <b>?</b></i>לא ידוע מי היו ההורים</span><span><i class="pqx">נחקר · הורים לא ידועים</i>חיפשנו בכל המקורות, וההורים לא נמצאו</span><span>לחיצה על אדם פותחת את הכרטיס שלו</span>
   </div>
   <div class="tvsc" id="tvsc"><div class="tvst" id="tvst"><svg class="tvl" id="tvl" aria-hidden="true"></svg><div id="tvtree"></div></div></div>
 </section>
@@ -1390,13 +1390,13 @@ function tvDraw(){
   const SEG=[], TAGS=[]; (out.match(/ d="[^"]+"/g)||[]).forEach(s=>{ const t=s.slice(4,-1).match(/[MVH]|-?[\d.]+/g)||[]; let px=0,py=0;
     for(let j=0;j<t.length;){ const c=t[j++]; if(c==='M'){ px=+t[j++]; py=+t[j++]; } else if(c==='V'){ const ny=+t[j++]; SEG.push([px,Math.min(py,ny),px,Math.max(py,ny)]); py=ny; } else if(c==='H'){ const nx=+t[j++]; SEG.push([Math.min(px,nx),py,Math.max(px,nx),py]); px=nx; } } });
   const hits=r=>SEG.filter(s=>s[0]<=r[2]+3&&s[2]>=r[0]-3&&s[1]<=r[3]+3&&s[3]>=r[1]-3).length+TAGS.filter(q=>q[0]<r[2]+4&&q[2]>r[0]-4&&q[1]<r[3]+3&&q[3]>r[1]-3).length;
-  TV.host.querySelectorAll('.tcard[data-id]').forEach(e=>{ const id=e.dataset.id, p=P[id]; if(!p||p.grp||KIDS.has(id)) return; const b=tvBox(e), y=b.y, m=Math.max(0,b.w/2-16); let ty=Math.max(1,y-27); const dead=!!p.noup, hw=dead?44:29;
+  TV.host.querySelectorAll('.tcard[data-id]').forEach(e=>{ const id=e.dataset.id, p=P[id]; if(!p||p.grp||KIDS.has(id)) return; const b=tvBox(e), y=b.y, m=Math.max(0,b.w/2-16); let ty=Math.max(1,y-27); const dead=!!p.noup, hw=dead?58:29;
     let x=b.x+b.w/2, best=1e9; const t0=ty; for(const up of [0,9,18,27,-5]) { for(const d of [0,18,-18,m,-m,m+24,-m-24]){ const cx=b.x+b.w/2+d, cy=Math.min(y-21,Math.max(1,t0-up)), n=3*hits([cx-hw,cy,cx+hw,cy+18])+hits([cx-1,cy+18,cx+1,y-2])+(up?.5:0)+(d?.3:0); if(n<best){ best=n; x=cx; ty=cy; } if(!n) break; } if(best<1) break; }
     TAGS.push([x-hw,ty,x+hw,ty+18]);
-    // noup:true on a person: we searched the sources and there is nowhere further back to go, so the tag says so ("נחקר · לא נמצא")
+    // noup:true on a person: we searched the sources and there is nowhere further back to go, so the tag says so ("נחקר · הורים לא ידועים")
     out+='<g class="pq'+(dead?' pqx':'')+'"><line x1="'+x+'" y1="'+(y-1)+'" x2="'+x+'" y2="'+(ty+18)+'" stroke="'+(dead?'var(--pqx)':'var(--muted)')+'" stroke-width="1.4"'+(dead?'':' stroke-dasharray="3 2.5"')+'/>'
       +(dead?'<rect x="'+(x-hw)+'" y="'+ty+'" width="'+(2*hw)+'" height="18" rx="9" fill="var(--sheet)" stroke="var(--pqx)" stroke-width="1.3"/>'
-        +'<text x="'+x+'" y="'+(ty+13)+'" text-anchor="middle" font-size="10.5" fill="var(--ink)">נחקר · לא נמצא</text></g>'
+        +'<text x="'+x+'" y="'+(ty+13)+'" text-anchor="middle" font-size="10.5" fill="var(--ink)">נחקר · הורים לא ידועים</text></g>'
       :'<rect x="'+(x-29)+'" y="'+ty+'" width="58" height="18" rx="9" fill="var(--sheet)" stroke="var(--pq)" stroke-width="1.3"/>'
       +'<text x="'+(x+6)+'" y="'+(ty+13)+'" text-anchor="middle" font-size="11" fill="var(--ink)">הורים</text>'
       +'<text x="'+(x-17)+'" y="'+(ty+14)+'" text-anchor="middle" font-size="13.5" font-weight="700" fill="var(--pq)">?</text></g>'); });
