@@ -20,7 +20,7 @@
 :root{--couple:#D4A017;--couple-hl:#C2410C;--couple-hl2:#F76707;--mline:#D6336C;
   --paper:#EBEFEC; --sheet:#F8FAF8; --ink:#1B2730; --muted:#58676E; --rule:#C3CDCA;
   --accent:#2C4A86;--lk2:#2F7FB8;--navy:#1F3A6B; --accent-soft:#DCE3F1;
-  --lost:#8E2E2B; --survived:#2C6B56; --living:#9A6512; --pq:#3F6E85; --fell:#5B3E86; --died:#6E7B80; --unknown:#B4BEBC;
+  --lost:#A88A00; --survived:#138A7E; --living:#8E5BB8; --pq:#3F6E85; --fell:#66761E; --died:#6E7B80; --unknown:#3A4245; --guess0:#9A6512; --told0:#5B3E86;
   --display:"Frank Ruhl Libre","David","Times New Roman",serif;
   --body:"Assistant","Arial Hebrew","Segoe UI",Arial,sans-serif;
   --mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
@@ -28,11 +28,11 @@
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--couple:#E3B341;--couple-hl:#D9480F;--couple-hl2:#FF922B;--mline:#F06595;
   --paper:#11171A; --sheet:#182125; --ink:#E2E8E6; --muted:#97A6AB; --rule:#2D393E;
   --accent:#93ABE3;--lk2:#6EC3E8;--navy:#4C6FB8; --accent-soft:#22304D;
-  --lost:#E0857C; --survived:#6FC1A4; --living:#E3B45E; --pq:#9CC3D5; --fell:#B79BE6; --died:#8D9BA0; --unknown:#4B575B; color-scheme:dark;}}
+  --lost:#F2DA5E; --survived:#63D2C6; --living:#C8A2E8; --pq:#9CC3D5; --fell:#A9B95A; --died:#8D9BA0; --unknown:#4B575B; --guess0:#E3B45E; --told0:#B79BE6; color-scheme:dark;}}
 :root[data-theme="dark"]{--couple:#E3B341;--couple-hl:#D9480F;--couple-hl2:#FF922B;--mline:#F06595;
   --paper:#11171A; --sheet:#182125; --ink:#E2E8E6; --muted:#97A6AB; --rule:#2D393E;
   --accent:#93ABE3;--lk2:#6EC3E8;--navy:#4C6FB8; --accent-soft:#22304D;
-  --lost:#E0857C; --survived:#6FC1A4; --living:#E3B45E; --pq:#9CC3D5; --fell:#B79BE6; --died:#8D9BA0; --unknown:#4B575B; color-scheme:dark;}
+  --lost:#F2DA5E; --survived:#63D2C6; --living:#C8A2E8; --pq:#9CC3D5; --fell:#A9B95A; --died:#8D9BA0; --unknown:#4B575B; --guess0:#E3B45E; --told0:#B79BE6; color-scheme:dark;}
 
 *{box-sizing:border-box}
 body{background:var(--paper);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.55;direction:rtl}
@@ -298,7 +298,7 @@ h1{font-family:var(--display);font-weight:900;font-size:clamp(30px,5vw,48px);lin
 .tcard.you{background:var(--accent-soft)}
 .tcard:focus-visible,.treebtn:focus-visible,.tvtools button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 
-.rmap{--route:var(--accent);--guess:var(--living);--told:var(--fell);--sea:var(--sheet);--land:var(--paper);--land-line:var(--rule);display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:14px;align-items:start;margin:10px 0 6px}
+.rmap{--route:var(--accent);--guess:var(--guess0);--told:var(--told0);--sea:var(--sheet);--land:var(--paper);--land-line:var(--rule);display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:14px;align-items:start;margin:10px 0 6px}
 @media (max-width:820px){.rmap{grid-template-columns:1fr}}
 .rmap figure{margin:0;border:1px solid var(--rule);border-radius:10px;overflow:hidden;background:var(--sea)}
 .rmap svg{display:block;width:100%;height:auto}
@@ -314,7 +314,7 @@ h1{font-family:var(--display);font-weight:900;font-size:clamp(30px,5vw,48px);lin
 ol.rstops{list-style:none;padding:0;margin:8px 0;display:grid;gap:6px;max-width:72ch}
 ol.rstops li{display:grid;grid-template-columns:28px 1fr;gap:10px;align-items:start}
 ol.rstops .rn{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:700;color:#fff;background:var(--accent);margin-top:4px}
-ol.rstops .rn.g{background:var(--living)} ol.rstops .rn.t{background:var(--fell)} ol.rstops .rn.x{background:transparent;color:var(--muted);border:2px dashed var(--muted)}
+ol.rstops .rn.g{background:var(--guess0)} ol.rstops .rn.t{background:var(--told0)} ol.rstops .rn.x{background:transparent;color:var(--muted);border:2px dashed var(--muted)}
 .plink{margin:10px 0 0;font-weight:700;display:grid;gap:6px}.plink a{color:var(--accent)}
 .viewbtn{text-decoration:none;margin-inline-start:6px}
 .viewbar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 14px;margin:0 0 14px;padding:10px 14px;border:1px solid var(--accent);border-radius:12px;color:var(--accent);font-weight:700}
@@ -337,12 +337,12 @@ ol.rstops .rn.g{background:var(--living)} ol.rstops .rn.t{background:var(--fell)
     <div class="tools">
       <label class="search" for="q"><span aria-hidden="true">⌕</span><input id="q" type="search" placeholder="חיפוש שם, למשל: רסל" autocomplete="off"></label>
       <div class="legend" aria-label="מקרא">
-        <span><i class="dot lost"></i>נרצח/ה בשואה</span>
-        <span><i class="dot survived"></i>שרד/ה</span>
-        <span><i class="dot fell"></i>נפל</span>
+        <span><i class="dot living"></i>חי/ה</span>
         <span><i class="dot died"></i>נפטר/ה</span>
-        <span><i class="dot living"></i>בחיים</span>
-        <span><i class="dot"></i>לא ידוע</span>
+        <span><i class="dot survived"></i>ניצול/ת שואה</span>
+        <span><i class="dot lost"></i>נרצח/ה בשואה</span>
+        <span><i class="dot fell"></i>נפל/ה במערכה</span>
+        <span><i class="dot"></i>גורל לא ידוע</span>
         <span class="num">?</span><span>שנה לא ידועה · ~ שנה משוערת</span>
       </div>
     </div>
@@ -510,7 +510,7 @@ ol.rstops .rn.g{background:var(--living)} ol.rstops .rn.t{background:var(--fell)
     </div>
   </div>
   <div class="tvleg">
-    <span><i class="dot lost"></i>נרצח בשואה</span><span><i class="dot survived"></i>שרד</span><span><i class="dot fell"></i>נפל במערכה</span><span><i class="dot died"></i>נפטר</span><span><i class="dot living"></i>חי</span><span><i class="dot"></i>גורל לא ידוע</span>
+    <span><i class="dot living"></i>חי</span><span><i class="dot died"></i>נפטר</span><span><i class="dot survived"></i>ניצול שואה</span><span><i class="dot lost"></i>נרצח בשואה</span><span><i class="dot fell"></i>נפל במערכה</span><span><i class="dot"></i>גורל לא ידוע</span>
     <span><i class="cpl"></i>בני זוג</span><span><i class="ln"></i>הקו הישיר אל יונתן — אל גבר</span><span><i class="ln f"></i>הקו הישיר — אל אישה (משפחת האם או האישה)</span><span><i class="dsh"></i>ממשפחה אחרת</span><span><i class="pq">הורים <b>?</b></i>לא ידוע מי היו ההורים</span><span>לחיצה על אדם פותחת את הכרטיס שלו</span>
   </div>
   <div class="tvsc" id="tvsc"><div class="tvst" id="tvst"><svg class="tvl" id="tvl" aria-hidden="true"></svg><div id="tvtree"></div></div></div>
