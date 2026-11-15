@@ -273,8 +273,10 @@ h1{font-family:var(--display);font-weight:900;font-size:clamp(30px,5vw,48px);lin
 .tvsc{flex:1;overflow:auto;cursor:default}
 .tvsc.drag{cursor:default}
 .tvst{position:relative;transform-origin:top right;padding:156px 28px 40px;width:max-content;min-width:100%}
-.tvst .tvinfo{position:absolute;top:100px;left:150px;z-index:2;transform:scale(1.6);transform-origin:top left;display:flex;flex-direction:column;align-items:stretch}
+.tvst .tvinfo{position:absolute;top:100px;left:54px;z-index:2;transform:scale(1.6);transform-origin:top left;display:flex;flex-direction:column;align-items:stretch}
 .tvst .tvinfo .tcard{border:4px solid #1f3a8a}
+  /* the rabbi's card in the same blue as the link to his tree */
+  .tvinfo .tcard[data-id="greece1947_info"]{border-color:var(--accent)}
 .tvst .tvinfo .tcard + .tcard{margin-top:8px}
 .tvst .tvat .tcard[data-id="judengasse_info"],.tvst .tvat .tcard[data-id="judengasse_map"],.tvst .tvat .tcard[data-id="vienna_ghetto"],.tvst .tvat .tcard[data-id="eger_community"]{border:6px solid #1f3a8a} .tvst .tvat .tcard[data-id="sources_info"],.tvst .tvat .tcard[data-id="names_info"]{border:6px solid #1f3a8a;transform:scale(1.45);transform-origin:center top} .tvst .tvgrp{pointer-events:none} .tvst .tvgrp .tcard,.tvst .tvgrp .tvcpl{pointer-events:auto}
 /* an information card placed right above someone in the tree, with no line (infoAt) */
