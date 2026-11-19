@@ -1547,7 +1547,7 @@ function openP(id,btn){
   // lkTop cards read top-down: links, then the text, then the sections; every other card keeps sections, text, links
   if(p.lkTop){ n.before(pl); n.after(f); } else { document.getElementById('psrc').before(pl); n.before(f); }
   const pd=document.getElementById('pdocs'), pg=document.getElementById('pdg'); pg.textContent='';
-  /* the person's own documents (listed first in p) come first, top right */ (window.GALFLAT||[]).map((it,i)=>[it,i]).filter(([it])=>(it.p||[]).includes(id)).sort((a,b)=>((b[0].p||[])[0]===id)-((a[0].p||[])[0]===id)).forEach(([it,i])=>{
+  const sofOwn=x=>{ if(!window._sofIds){ const s=new Set(['shlomo_wr','freyde_rr']); const sb=BR.esti.find(b=>b.t==='סופר-שרייבר'); if(sb) sb.u.forEach(u=>[...u.c,...(u.c2||[]),...u.k].forEach(y=>s.add(y.replace('*','')))); window._sofIds=s; } return window._sofIds.has(x); };   /* Sofer-Schreiber tree only: the person's own documents (listed first in p) come first, top right; other trees keep the gallery order */ (window.GALFLAT||[]).map((it,i)=>[it,i]).filter(([it])=>(it.p||[]).includes(id)).sort((a,b)=>sofOwn(id)?(((b[0].p||[])[0]===id)-((a[0].p||[])[0]===id)):0).forEach(([it,i])=>{
     const b=el('button','pdt'); b.type='button'; b.title=it.c;
     const im=document.createElement('img'); im.src='gallery/'+it.f+'t.jpg'; im.alt=it.c; im.loading='lazy';
     b.append(im, el('span',null,it.c)); b.addEventListener('click',()=>window.galOpen(i,b)); pg.append(b); });
