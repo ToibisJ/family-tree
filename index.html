@@ -277,7 +277,7 @@ h1{font-family:var(--display);font-weight:900;font-size:clamp(30px,5vw,48px);lin
 .tvsc{flex:1;overflow:auto;cursor:default}
 .tvsc.drag{cursor:default}
 .tvst{position:relative;transform-origin:top right;padding:156px 28px 40px;width:max-content;min-width:100%}
-.tvst .tvinfo{position:absolute;top:100px;left:54px;z-index:2;transform:scale(1.6);transform-origin:top left;display:flex;flex-direction:column;align-items:stretch}
+.tvst .tvinfo{position:absolute;top:100px;left:54px;z-index:2;transform:scale(1.6);transform-origin:top left;display:flex;flex-direction:column;align-items:stretch}
 .tvst .tvinfo .tcard{border:4px solid #1f3a8a}
   /* the rabbi's card a shade under the accent blue */
   .tvinfo .tcard[data-id="greece1947_info"]{border-color:#7E99DA}
@@ -1262,7 +1262,7 @@ function renderTree(side,br){
   const ctx={LINE:lineSet(),HOME:homeBranch(),t:br.t,births:new Set()};
   // a branch can pin information cards (not people) in the top-left corner of its tree: info:[id]
   TV.st.querySelectorAll('.tvinfo').forEach(e=>e.remove());
-  if(br.info){ const ib=el('div','tvinfo'); br.info.forEach(id=>{ if(P[id]) ib.append(tcard(id,ctx)); }); TV.st.append(ib); }
+  if(br.info){ const ib=el('div','tvinfo'); br.info.forEach(id=>{ if(P[id]) ib.append(tcard(id,ctx)); }); TV.st.append(ib); }
   const r=buildComponents(units), comps=r.comps, gen=r.gen;
   const bunit={}; units.forEach((u,ui)=>{ if(u.c.length) u.k.forEach(k=>{ ctx.births.add(k); if(!(k in bunit)) bunit[k]=ui; }); });
   const spouses={}; units.forEach(u=>{ for(let i=0;i<u.c.length;i++) for(let j=0;j<u.c.length;j++) if(i!==j) (spouses[u.c[i]]=spouses[u.c[i]]||new Set()).add(u.c[j]); });
