@@ -105,7 +105,17 @@ function fitTo(lon0, lat0, lon1, lat1){
   proj.fitExtent([[30, 30], [W - 30, H - 40]], {type:'Feature', geometry:{type:'MultiPoint', coordinates:[[lon0,lat0],[lon1,lat1],[lon0,lat1],[lon1,lat0]]}});
 }
 size(); fitTo(5.5, 46.5, 27, 54);
-const zoom = d3.zoom().scaleExtent([0.15, 40]).on('zoom', e => { g.attr('transform', e.transform); k = e.transform.k; restyle(); });
+const zoom = d3.zoom().on('zoom', e => { g.attr('transform', e.transform); k = e.transform.k; restyle(); });
+/* the widest view allowed: from the Atlantic to the Caspian side, from the North Sea to Haifa (set by Esti, 24.11.2026) */
+const LIM = {L:[-13.01, 40.35], R:[43.91, 40.09], T:[15.74, 60.64], B:[15.4, 28.03]};
+let limRect;
+function limits(){
+  const l = proj(LIM.L), r = proj(LIM.R), t = proj(LIM.T), b = proj(LIM.B);
+  limRect = [[Math.min(l[0], r[0]), t[1]], [Math.max(l[0], r[0]), b[1]]];
+  const rw = limRect[1][0] - limRect[0][0], rh = limRect[1][1] - limRect[0][1];
+  zoom.translateExtent(limRect).scaleExtent([Math.max(W / rw, H / rh), 40]);
+}
+limits();
 svg.call(zoom).on('dblclick.zoom', null);
 function restyle(){
   gDots.selectAll('circle').attr('r', R / k);
@@ -153,14 +163,15 @@ function fitView(lon0, lat0, lon1, lat1){
   const kk = Math.min((W - 60) / (x1 - x0), (H - 70) / (y1 - y0));
   svg.transition().duration(600).call(zoom.transform, d3.zoomIdentity.translate(W/2 - kk*(x0+x1)/2, H/2 - kk*(y0+y1)/2).scale(kk));
 }
-d3.select('#zall').on('click', () => fitView(-1.5, 31, 31.5, 54.5));
+d3.select('#zall').on('click', () => { const [[x0, y0], [x1, y1]] = limRect, kk = zoom.scaleExtent()[0];
+  svg.transition().duration(600).call(zoom.transform, d3.zoomIdentity.translate(W/2 - kk*(x0+x1)/2, H/2 - kk*(y0+y1)/2).scale(kk)); });
 d3.select('#zeu').on('click', () => svg.transition().duration(600).call(zoom.transform, d3.zoomIdentity));
 draw(); home();
 fetch('https://cdn.jsdelivr.net/npm/world-atlas@2.0.2/countries-50m.json').then(r => r.json()).then(w => {
   const land = topojson.feature(w, w.objects.countries);
   gLand.selectAll('path').data(land.features).join('path').attr('class', 'land').attr('d', path);
 }).catch(() => {});
-window.addEventListener('resize', () => { size(); });
+window.addEventListener('resize', () => { size(); limits(); });
 </script>
 </body>
 </html>
