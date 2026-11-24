@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>מפת הערים · אילן __TREE__</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@500;700&family=Assistant:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#eef1f4; --land:#f6f1e6; --land-line:#a9b2bd; --sea:#cfe0ee;
+  --ink:#1d2533; --muted:#5b6574; --rule:#d5dbe2; --card:#ffffff;
+  --dot:#1F3A8A; --dot-ring:#ffffff; --sel:#B8860B;
+  --display:"Frank Ruhl Libre","David",Georgia,serif;
+  --body:"Assistant","Segoe UI",Arial,sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#11161e; --land:#2b3544; --land-line:#566377; --sea:#0b1a2b;
+    --ink:#e6eaf0; --muted:#9aa5b4; --rule:#2a3340; --card:#161c25;
+    --dot:#7fa2e8; --dot-ring:#11161e; --sel:#e8a33c; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#11161e; --land:#2b3544; --land-line:#566377; --sea:#0b1a2b;
+  --ink:#e6eaf0; --muted:#9aa5b4; --rule:#2a3340; --card:#161c25;
+  --dot:#7fa2e8; --dot-ring:#11161e; --sel:#e8a33c; color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--paper);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.55}
+.wrap{max-width:1360px;margin:0 auto;padding:22px 16px 36px}
+header{display:grid;gap:4px;margin-bottom:14px}
+h1{font-family:var(--display);font-weight:700;font-size:clamp(26px,4vw,38px);line-height:1.15;margin:0}
+.sub{color:var(--muted);margin:0;max-width:75ch}
+.back{font-size:14px;color:var(--muted)}
+.back a{color:inherit}
+.grid{display:grid;grid-template-columns:minmax(280px,380px) 1fr;gap:18px;align-items:start}
+@media (max-width:860px){.grid{grid-template-columns:1fr}.mapbox{order:-1}}
+.mapbox{position:relative;background:var(--sea);border:1px solid var(--rule);border-radius:10px;overflow:hidden;height:min(78vh,760px)}
+@media (max-width:860px){.mapbox{height:62vh}}
+#map{display:block;width:100%;height:100%;cursor:grab;touch-action:none}
+#map:active{cursor:grabbing}
+.land{fill:var(--land);stroke:var(--land-line);stroke-width:.6;vector-effect:non-scaling-stroke}
+.dot{fill:var(--dot);stroke:var(--dot-ring);stroke-width:1.5;cursor:pointer;vector-effect:non-scaling-stroke}
+.dot:hover{fill:var(--sel)}
+.dot.on{fill:var(--sel)}
+.lbl{font-family:var(--body);font-weight:600;fill:var(--ink);paint-order:stroke;stroke:var(--sea);stroke-width:3px;stroke-linejoin:round;cursor:pointer}
+.lbl:hover{fill:var(--sel)}
+.ctrl{position:absolute;top:10px;left:10px;display:grid;gap:6px}
+.ctrl button{font:600 15px var(--body);min-width:36px;height:36px;padding:0 10px;border-radius:8px;border:1px solid var(--rule);background:var(--card);color:var(--ink);cursor:pointer}
+.ctrl button:focus-visible{outline:2px solid var(--dot);outline-offset:2px}
+.note{position:absolute;bottom:0;left:0;right:0;font-size:12px;color:var(--muted);padding:6px 10px;background:color-mix(in srgb,var(--sea) 85%,transparent)}
+.panel{background:var(--card);border:1px solid var(--rule);border-radius:10px;padding:14px 16px}
+.panel h2{font-family:var(--display);font-size:26px;margin:0}
+.panel .en{color:var(--muted);font-size:14px;margin:0 0 8px}
+.panel h3{font-size:15px;margin:14px 0 6px;color:var(--muted);font-weight:700;border-bottom:1px solid var(--rule);padding-bottom:3px}
+.panel ul{list-style:none;margin:0;padding:0;display:grid;gap:3px}
+.panel li{display:flex;justify-content:space-between;gap:10px}
+.panel li .yr{color:var(--muted);font-size:14px;white-space:nowrap;direction:ltr}
+.panel .unc{color:var(--muted);font-size:13px}
+.hint{color:var(--muted);margin:0 0 10px}
+.clist{display:flex;flex-wrap:wrap;gap:6px}
+.clist button{font:14px var(--body);border:1px solid var(--rule);background:transparent;color:var(--ink);border-radius:999px;padding:2px 10px;cursor:pointer}
+.clist button:hover{border-color:var(--dot)}
+.closebtn{float:left;font:14px var(--body);border:1px solid var(--rule);background:transparent;color:var(--muted);border-radius:8px;padding:2px 10px;cursor:pointer}
+.tags{display:inline-flex;flex-wrap:wrap;gap:4px;margin-inline-start:6px;vertical-align:middle}
+.tg{font-size:11.5px;line-height:1;padding:3px 8px;border-radius:999px;font-weight:600}
+.tb{background:#d6ecfa;color:#0f4c75}
+.tl{background:#ece4f7;color:#5b3f86}
+.td{background:#e4e6e9;color:#454b54}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .tb{background:#1d3e55;color:#bfe3fa}:root:not([data-theme="light"]) .tl{background:#3a2f4e;color:#e2d4f5}:root:not([data-theme="light"]) .td{background:#33373e;color:#d4d8de}}
+.panel li{align-items:center}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="back"><a href="../#tree=__TREE__">← חזרה לאילן __TREE__</a></div>
+    <h1>מפת הערים · אילן __TREE__</h1>
+    <p class="sub">לחיצה על נקודה מראה מי נולד בה, מי גר בה ומי נפטר בה.</p>
+  </header>
+  <div class="grid">
+    <aside class="panel" id="panel" aria-live="polite"></aside>
+    <div class="mapbox">
+      <svg id="map" role="img" aria-label="מפת הערים של אילן __TREE__"></svg>
+      <div class="ctrl">
+        <button id="zin" aria-label="הגדלה">+</button>
+        <button id="zout" aria-label="הקטנה">−</button>
+        <button id="zall">הכול</button>
+        <button id="zeu">__HOME__</button>
+      </div>
+      <div class="note">גבולות המדינות הם של היום. סימן ? בתג: במקור כתוב "כנראה" או "או".</div>
+    </div>
+  </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script>
+const DATA = /*DATA*/[];
+const LAND = /*LAND*/{};
+const CFG = /*CFG*/{};
+const svg = d3.select('#map'), box = document.querySelector('.mapbox');
+const g = svg.append('g'), gLand = g.append('g'), gDots = g.append('g'), gLbl = g.append('g');
+const proj = d3.geoConicConformal().parallels([44, 52]).rotate([-15, 0]);
+const path = d3.geoPath(proj);
+let W = 0, H = 0, k = 1, sel = null;
+const R = 5.5;
+const pt = c => proj([c.lon, c.lat]);
+function size(){ W = box.clientWidth; H = box.clientHeight; svg.attr('viewBox', [0, 0, W, H]); }
+function fitTo(lon0, lat0, lon1, lat1){
+  proj.fitExtent([[30, 30], [W - 30, H - 40]], {type:'Feature', geometry:{type:'MultiPoint', coordinates:[[lon0,lat0],[lon1,lat1],[lon0,lat1],[lon1,lat0]]}});
+}
+size(); fitTo(...CFG.view);
+const zoom = d3.zoom().on('zoom', e => { g.attr('transform', e.transform); k = e.transform.k; restyle(); });
+/* the widest view allowed (L/R/T/B edges), set per map */
+const LIM = CFG.lim;
+let limRect;
+function limits(){
+  const l = proj(LIM.L), r = proj(LIM.R), t = proj(LIM.T), b = proj(LIM.B);
+  limRect = [[Math.min(l[0], r[0]), t[1]], [Math.max(l[0], r[0]), b[1]]];
+  const rw = limRect[1][0] - limRect[0][0], rh = limRect[1][1] - limRect[0][1];
+  zoom.translateExtent(limRect).scaleExtent([Math.max(W / rw, H / rh), 40]);
+}
+limits();
+svg.call(zoom).on('dblclick.zoom', null);
+function restyle(){
+  gDots.selectAll('circle').attr('r', R / k);
+  const show = k >= 2.2;
+  gLbl.selectAll('text').attr('y', d => pt(d)[1] - 9 / k).attr('font-size', 12.5 / k).attr('stroke-width', 3 / k)
+    .attr('display', d => (show || (sel && d.k === sel)) ? null : 'none');
+}
+function draw(){
+  gDots.selectAll('circle').data(DATA, d => d.k).join('circle')
+    .attr('class', d => 'dot' + (d.k === sel ? ' on' : ''))
+    .attr('cx', d => pt(d)[0]).attr('cy', d => pt(d)[1])
+    .attr('tabindex', 0).attr('role', 'button').attr('aria-label', d => d.he)
+    .on('click', (e, d) => pick(d.k))
+    .on('keydown', (e, d) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pick(d.k); } })
+    .selectAll('title').data(d => [d]).join('title').text(d => d.he + ' · ' + d.en);
+  gLbl.selectAll('text').data(DATA, d => d.k).join('text').attr('class', 'lbl')
+    .attr('x', d => pt(d)[0]).attr('text-anchor', 'middle').text(d => d.he)
+    .on('click', (e, d) => pick(d.k));
+  restyle();
+}
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function merged(c){
+  const m = new Map();
+  [['b','לידה','tb'],['l','מגורים','tl'],['d','פטירה','td']].forEach(([r, tag, cls]) => c[r].forEach(p => {
+    if (!m.has(p.id)) m.set(p.id, {n:p.n, y:p.y, tags:[]});
+    m.get(p.id).tags.push({tag, cls, u:p.u});
+  }));
+  const yr = s => { const f = String(s || '').match(/\d{4}/); return f ? +f[0] : 9999; };
+  const arr = [...m.values()].sort((a, b) => yr(a.y) - yr(b.y));
+  return '<h3>אנשים מהעיר (' + arr.length + ')</h3><ul>' + arr.map(p =>
+    '<li><span>' + esc(p.n) + ' <span class="tags">' + p.tags.map(t => '<span class="tg ' + t.cls + '"' + (t.u ? ' title="במקור: כנראה / או"' : '') + '>' + t.tag + (t.u ? ' ?' : '') + '</span>').join('') + '</span></span><span class="yr">' + esc(p.y || '') + '</span></li>').join('') + '</ul>';
+}
+function home(){
+  const byName = DATA.slice().sort((a, b) => a.he.localeCompare(b.he, 'he'));
+  document.getElementById('panel').innerHTML = '<p class="hint">לחצו על נקודה במפה, או על שם עיר כאן:</p><div class="clist">' +
+    byName.map(c => '<button data-k="' + c.k + '">' + esc(c.he) + '</button>').join('') + '</div>';
+  document.querySelectorAll('.clist button').forEach(b => b.onclick = () => pick(b.dataset.k, true));
+}
+function pick(key, center){
+  sel = key; const c = DATA.find(d => d.k === key);
+  document.getElementById('panel').innerHTML = '<button class="closebtn" id="cls">כל הערים</button><h2>' + esc(c.he) + '</h2><p class="en">' + esc(c.en) + '</p>' +
+    merged(c);
+  document.getElementById('cls').onclick = () => { sel = null; draw(); home(); };
+  draw();
+  if (center){ const [x, y] = pt(c), kk = Math.max(k, 3); svg.transition().duration(600).call(zoom.transform, d3.zoomIdentity.translate(W/2 - kk*x, H/2 - kk*y).scale(kk)); }
+}
+d3.select('#zin').on('click', () => svg.transition().call(zoom.scaleBy, 1.6));
+d3.select('#zout').on('click', () => svg.transition().call(zoom.scaleBy, 1/1.6));
+function fitView(lon0, lat0, lon1, lat1){
+  const a = proj([lon0, lat1]), b = proj([lon1, lat0]);
+  const x0 = Math.min(a[0], b[0]), x1 = Math.max(a[0], b[0]), y0 = Math.min(a[1], b[1]), y1 = Math.max(a[1], b[1]);
+  const kk = Math.min((W - 60) / (x1 - x0), (H - 70) / (y1 - y0));
+  svg.transition().duration(600).call(zoom.transform, d3.zoomIdentity.translate(W/2 - kk*(x0+x1)/2, H/2 - kk*(y0+y1)/2).scale(kk));
+}
+d3.select('#zall').on('click', () => { const [[x0, y0], [x1, y1]] = limRect, kk = zoom.scaleExtent()[0];
+  svg.transition().duration(600).call(zoom.transform, d3.zoomIdentity.translate(W/2 - kk*(x0+x1)/2, H/2 - kk*(y0+y1)/2).scale(kk)); });
+d3.select('#zeu').on('click', () => svg.transition().duration(600).call(zoom.transform, d3.zoomIdentity));
+draw(); home();
+gLand.selectAll('path').data(LAND.features).join('path').attr('class', 'land').attr('d', path);
+window.addEventListener('resize', () => { size(); limits(); });
+</script>
+</body>
+</html>
