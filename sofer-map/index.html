@@ -48,7 +48,8 @@ h1{font-family:var(--display);font-weight:700;font-size:clamp(26px,4vw,38px);lin
 .dot{fill:var(--dot);stroke:var(--dot-ring);stroke-width:1.5;cursor:pointer;vector-effect:non-scaling-stroke}
 .dot:hover{fill:var(--sel)}
 .dot.on{fill:var(--sel)}
-.lbl{font-family:var(--body);font-weight:600;fill:var(--ink);paint-order:stroke;stroke:var(--sea);stroke-width:3px;stroke-linejoin:round;pointer-events:none}
+.lbl{font-family:var(--body);font-weight:600;fill:var(--ink);paint-order:stroke;stroke:var(--sea);stroke-width:3px;stroke-linejoin:round;cursor:pointer}
+.lbl:hover{fill:var(--sel)}
 .ctrl{position:absolute;top:10px;left:10px;display:grid;gap:6px}
 .ctrl button{font:600 15px var(--body);min-width:36px;height:36px;padding:0 10px;border-radius:8px;border:1px solid var(--rule);background:var(--card);color:var(--ink);cursor:pointer}
 .ctrl button:focus-visible{outline:2px solid var(--dot);outline-offset:2px}
@@ -139,7 +140,8 @@ function draw(){
     .on('keydown', (e, d) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pick(d.k); } })
     .selectAll('title').data(d => [d]).join('title').text(d => d.he + ' · ' + d.en);
   gLbl.selectAll('text').data(DATA, d => d.k).join('text').attr('class', 'lbl')
-    .attr('x', d => pt(d)[0]).attr('text-anchor', 'middle').text(d => d.he);
+    .attr('x', d => pt(d)[0]).attr('text-anchor', 'middle').text(d => d.he)
+    .on('click', (e, d) => pick(d.k));
   restyle();
 }
 const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
