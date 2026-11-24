@@ -66,6 +66,13 @@ h1{font-family:var(--display);font-weight:700;font-size:clamp(26px,4vw,38px);lin
 .clist button{font:14px var(--body);border:1px solid var(--rule);background:transparent;color:var(--ink);border-radius:999px;padding:2px 10px;cursor:pointer}
 .clist button:hover{border-color:var(--dot)}
 .closebtn{float:left;font:14px var(--body);border:1px solid var(--rule);background:transparent;color:var(--muted);border-radius:8px;padding:2px 10px;cursor:pointer}
+.tags{display:inline-flex;flex-wrap:wrap;gap:4px;margin-inline-start:6px;vertical-align:middle}
+.tg{font-size:11.5px;line-height:1;padding:3px 8px;border-radius:999px;font-weight:600}
+.tb{background:#d6ecfa;color:#0f4c75}
+.tl{background:#ece4f7;color:#5b3f86}
+.td{background:#e4e6e9;color:#454b54}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .tb{background:#1d3e55;color:#bfe3fa}:root:not([data-theme="light"]) .tl{background:#3a2f4e;color:#e2d4f5}:root:not([data-theme="light"]) .td{background:#33373e;color:#d4d8de}}
+.panel li{align-items:center}
 </style>
 </head>
 <body>
@@ -85,7 +92,7 @@ h1{font-family:var(--display);font-weight:700;font-size:clamp(26px,4vw,38px);lin
         <button id="zall">הכול</button>
         <button id="zeu">מרכז אירופה</button>
       </div>
-      <div class="note">גבולות המדינות הם של היום. מקום שמסומן "כנראה" או "או" במקור מופיע ברשימה עם הסימן (?).</div>
+      <div class="note">גבולות המדינות הם של היום. סימן ? בתג: במקור כתוב "כנראה" או "או".</div>
     </div>
   </div>
 </div>
@@ -136,10 +143,16 @@ function draw(){
   restyle();
 }
 const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-function list(title, arr){
-  if (!arr.length) return '';
-  return '<h3>' + title + ' (' + arr.length + ')</h3><ul>' + arr.map(p =>
-    '<li><span>' + esc(p.n) + (p.u ? ' <span class="unc" title="במקור: כנראה / או">(?)</span>' : '') + '</span><span class="yr">' + esc(p.y || '') + '</span></li>').join('') + '</ul>';
+function merged(c){
+  const m = new Map();
+  [['b','לידה','tb'],['l','מגורים','tl'],['d','פטירה','td']].forEach(([r, tag, cls]) => c[r].forEach(p => {
+    if (!m.has(p.id)) m.set(p.id, {n:p.n, y:p.y, tags:[]});
+    m.get(p.id).tags.push({tag, cls, u:p.u});
+  }));
+  const yr = s => { const f = String(s || '').match(/\d{4}/); return f ? +f[0] : 9999; };
+  const arr = [...m.values()].sort((a, b) => yr(a.y) - yr(b.y));
+  return '<h3>אנשים מהעיר (' + arr.length + ')</h3><ul>' + arr.map(p =>
+    '<li><span>' + esc(p.n) + ' <span class="tags">' + p.tags.map(t => '<span class="tg ' + t.cls + '"' + (t.u ? ' title="במקור: כנראה / או"' : '') + '>' + t.tag + (t.u ? ' ?' : '') + '</span>').join('') + '</span></span><span class="yr">' + esc(p.y || '') + '</span></li>').join('') + '</ul>';
 }
 function home(){
   const byName = DATA.slice().sort((a, b) => a.he.localeCompare(b.he, 'he'));
@@ -150,7 +163,7 @@ function home(){
 function pick(key, center){
   sel = key; const c = DATA.find(d => d.k === key);
   document.getElementById('panel').innerHTML = '<button class="closebtn" id="cls">כל הערים</button><h2>' + esc(c.he) + '</h2><p class="en">' + esc(c.en) + '</p>' +
-    list('נולדו כאן', c.b) + list('גרו כאן', c.l) + list('נפטרו כאן', c.d);
+    merged(c);
   document.getElementById('cls').onclick = () => { sel = null; draw(); home(); };
   draw();
   if (center){ const [x, y] = pt(c), kk = Math.max(k, 3); svg.transition().duration(600).call(zoom.transform, d3.zoomIdentity.translate(W/2 - kk*x, H/2 - kk*y).scale(kk)); }
