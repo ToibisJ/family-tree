@@ -1,9 +1,9 @@
 // Family tree app: the page always comes from the network when online, checked past the browser cache (so updates show at once),
 // images are kept on the device so the gallery also opens offline.
-const CACHE = 'tree-v1';
+const CACHE = 'tree-v2'; // bump when a gallery image is replaced (v2: g489, g490 redrawn 25.11.2026)
 self.addEventListener('install', e => { self.skipWaiting();
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(['./', 'manifest.webmanifest', 'icons/icon-192.png', 'icons/icon-512.png']))); });
-self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));
+self.addEventListener('activate', e => e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim())));
 self.addEventListener('fetch', e => {
   const r = e.request;
   if (r.method !== 'GET') return;
