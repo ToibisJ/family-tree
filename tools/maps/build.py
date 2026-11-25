@@ -72,6 +72,35 @@ for p in people:
             if role == 'l' and k == 'auschwitz': continue  # a death camp is never a place where someone lived (Esti, 24.11.2026)
             seen.add(k)
             cities[k][role].append(dict(e, u=1) if u else e)
+# each person's route in order: birth city, then the residence chain, then the death city
+ROUTES = []
+for p in people:
+    i = p['id']
+    if re.search(r'_kids$|_sibs$|_sib$', i): continue
+    y = Ymap.get(i, ('?', '?'))
+    yr = '' if y == ('?', '?') else (y[0] + '–' + y[1]).replace('?', '')
+    steps = []
+    def add(k, role, note, u):
+        note = note.strip()[:90]
+        if steps and steps[-1]['k'] == k:
+            s = steps[-1]
+            if role not in s['r']: s['r'] += role
+            if note and note not in s['t']: s['t'].append(note)
+            if u: s['u'] = 1
+            return
+        steps.append({'k': k, 'r': role, 't': [note] if note else [], 'u': 1 if u else 0})
+    for k, u in find(p['b'])[:1]: add(k, 'b', p['b'], u)
+    for seg in strip_burial(p['place']).split('←'):
+        for k, u in find(seg):
+            if k == 'auschwitz': continue
+            add(k, 'l', seg, u)
+    dd = strip_burial(p['d'])
+    for k, u in find(dd)[:1]: add(k, 'd', dd, u)
+    for s in steps:
+        names = set([C[s['k']][0]] + C[s['k']][4])
+        s['t'] = [t for t in s['t'] if t.strip(' ,.') not in names]
+    if steps: ROUTES.append({'n': p['s'], 'y': yr, 's': steps})
+print('routes', len(ROUTES))
 used = {k: v for k, v in cities.items() if v['b'] or v['l'] or v['d']}
 print('people', len(people), 'cities used', len(used))
 for k, v in sorted(used.items(), key=lambda kv: -(len(kv[1]['b']) + len(kv[1]['l']) + len(kv[1]['d']))):
@@ -81,6 +110,7 @@ cfg = {kk: CFG[kk] for kk in ('view', 'lim')}
 html = (tpl.replace('/*DATA*/[]', json.dumps(list(used.values()), ensure_ascii=False))
            .replace('/*LAND*/{}', io.open(M + '/land.json', encoding='utf-8').read())
            .replace('/*CFG*/{}', json.dumps(cfg))
+           .replace('/*PEOPLE*/[]', json.dumps(ROUTES, ensure_ascii=False))
            .replace('__TREE__', CFG['tree']).replace('__HOME__', CFG['home']))
 out = 'C:/Claude/family-tree/' + CFG['dir']
 os.makedirs(out, exist_ok=True)
