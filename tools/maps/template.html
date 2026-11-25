@@ -74,6 +74,19 @@ h1{font-family:var(--display);font-weight:700;font-size:clamp(26px,4vw,38px);lin
 .td{background:#e4e6e9;color:#454b54}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .tb{background:#1d3e55;color:#bfe3fa}:root:not([data-theme="light"]) .tl{background:#3a2f4e;color:#e2d4f5}:root:not([data-theme="light"]) .td{background:#33373e;color:#d4d8de}}
 .panel li{align-items:center}
+.psearch{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:0 0 14px}
+.psearch input{flex:1;min-width:220px;font:16px var(--body);padding:8px 12px;border:1px solid var(--rule);border-radius:8px;background:var(--card);color:var(--ink)}
+.psearch button{font:600 15px var(--body);height:38px;padding:0 14px;border-radius:8px;border:1px solid var(--rule);background:var(--card);color:var(--ink);cursor:pointer}
+.psearch .err{font-size:14px;color:#b3261e;width:100%}
+.rt{fill:none;stroke:var(--sel);stroke-width:2.5;stroke-linejoin:round;stroke-linecap:round;vector-effect:non-scaling-stroke}
+.stc{fill:var(--sel);stroke:var(--dot-ring);stroke-width:1.5;vector-effect:non-scaling-stroke;cursor:pointer}
+.stn{fill:#fff;font-family:var(--body);font-weight:700;text-anchor:middle;pointer-events:none}
+.steps{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:8px;counter-reset:st}
+.steps li{display:grid;grid-template-columns:26px 1fr;gap:2px 8px;align-items:start}
+.steps .num{grid-row:span 2;width:24px;height:24px;border-radius:50%;background:var(--sel);color:#fff;font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center}
+.steps .city{font-weight:600;cursor:pointer;color:var(--ink)}
+.steps .city:hover{text-decoration:underline}
+.steps .what{font-size:13.5px;color:var(--muted)}
 </style>
 </head>
 <body>
@@ -83,6 +96,13 @@ h1{font-family:var(--display);font-weight:700;font-size:clamp(26px,4vw,38px);lin
     <h1>מפת הערים · אילן __TREE__</h1>
     <p class="sub">לחיצה על נקודה מראה מי נולד בה, מי גר בה ומי נפטר בה.</p>
   </header>
+  <div class="psearch">
+    <input id="ps" list="pl" placeholder="חיפוש אדם, למשל החתם סופר" aria-label="חיפוש אדם" autocomplete="off">
+    <datalist id="pl"></datalist>
+    <button id="psgo">הצגת המסלול</button>
+    <button id="psx">ניקוי</button>
+    <div class="err" id="pserr" aria-live="polite"></div>
+  </div>
   <div class="grid">
     <aside class="panel" id="panel" aria-live="polite"></aside>
     <div class="mapbox">
@@ -102,8 +122,9 @@ h1{font-family:var(--display);font-weight:700;font-size:clamp(26px,4vw,38px);lin
 const DATA = /*DATA*/[];
 const LAND = /*LAND*/{};
 const CFG = /*CFG*/{};
+const PEOPLE = /*PEOPLE*/[];
 const svg = d3.select('#map'), box = document.querySelector('.mapbox');
-const g = svg.append('g'), gLand = g.append('g'), gDots = g.append('g'), gLbl = g.append('g');
+const g = svg.append('g'), gLand = g.append('g'), gRoute = g.append('g'), gDots = g.append('g'), gStops = g.append('g'), gLbl = g.append('g');
 const proj = d3.geoConicConformal().parallels([44, 52]).rotate([-15, 0]);
 const path = d3.geoPath(proj);
 let W = 0, H = 0, k = 1, sel = null;
@@ -128,6 +149,8 @@ limits();
 svg.call(zoom).on('dblclick.zoom', null);
 function restyle(){
   gDots.selectAll('circle').attr('r', R / k);
+  gStops.selectAll('circle').attr('r', 9 / k);
+  gStops.selectAll('text').attr('font-size', 11 / k).attr('dy', 4 / k);
   const show = k >= 2.2;
   gLbl.selectAll('text').attr('y', d => pt(d)[1] - 9 / k).attr('font-size', 12.5 / k).attr('stroke-width', 3 / k)
     .attr('display', d => (show || (sel && d.k === sel)) ? null : 'none');
@@ -182,6 +205,42 @@ function fitView(lon0, lat0, lon1, lat1){
 d3.select('#zall').on('click', () => { const [[x0, y0], [x1, y1]] = limRect, kk = zoom.scaleExtent()[0];
   svg.transition().duration(600).call(zoom.transform, d3.zoomIdentity.translate(W/2 - kk*(x0+x1)/2, H/2 - kk*(y0+y1)/2).scale(kk)); });
 d3.select('#zeu').on('click', () => svg.transition().duration(600).call(zoom.transform, d3.zoomIdentity));
+/* person search: draws the person's cities in order, from the cards' birth, residence and death */
+const CBY = Object.fromEntries(DATA.map(c => [c.k, c]));
+PEOPLE.forEach(p => { p.label = p.n + (p.y ? ' (' + p.y + ')' : ''); });
+document.getElementById('pl').innerHTML = PEOPLE.map(p => '<option value="' + esc(p.label) + '">').join('');
+const ROLE = {b:'לידה', l:'מגורים', d:'פטירה'};
+function clearRoute(){ gRoute.selectAll('*').remove(); gStops.selectAll('*').remove(); }
+function route(p){
+  clearRoute(); sel = null; draw();
+  const stops = p.s.filter(s => CBY[s.k]); const pts = stops.map(s => pt(CBY[s.k]));
+  if (pts.length > 1) gRoute.append('path').attr('class', 'rt').attr('d', d3.line()(pts));
+  const st = gStops.selectAll('g').data(stops).join('g').attr('transform', (d, i) => 'translate(' + pts[i][0] + ',' + pts[i][1] + ')');
+  st.append('circle').attr('class', 'stc').on('click', (e, d) => pick(d.k));
+  st.append('text').attr('class', 'stn').text((d, i) => i + 1);
+  restyle();
+  document.getElementById('panel').innerHTML = '<button class="closebtn" id="cls">כל הערים</button><h2>' + esc(p.n) + '</h2><p class="en"><span dir="ltr">' + esc(p.y || '') + '</span></p>' +
+    '<ol class="steps">' + stops.map((s, i) => '<li><span class="num">' + (i + 1) + '</span><span class="city" data-k="' + s.k + '">' + esc(CBY[s.k].he) + '</span>' +
+    '<span class="what">' + s.r.split('').map(r => ROLE[r]).join(' · ') + (s.u ? ' (?)' : '') + (s.t.length ? ' — ' + esc(s.t.join(' · ')) : '') + '</span></li>').join('') + '</ol>';
+  document.getElementById('cls').onclick = () => { clearRoute(); sel = null; draw(); home(); };
+  document.querySelectorAll('.steps .city').forEach(el => el.onclick = () => pick(el.dataset.k, true));
+  const xs = pts.map(q => q[0]), ys = pts.map(q => q[1]);
+  const x0 = Math.min(...xs), x1 = Math.max(...xs), y0 = Math.min(...ys), y1 = Math.max(...ys);
+  let kk = Math.min((W - 190) / Math.max(x1 - x0, 1), (H - 120) / Math.max(y1 - y0, 1), 6);
+  kk = Math.max(kk, zoom.scaleExtent()[0]);
+  svg.transition().duration(700).call(zoom.transform, d3.zoomIdentity.translate(W/2 + 45 - kk*(x0+x1)/2, H/2 - kk*(y0+y1)/2).scale(kk));
+}
+function findPerson(){
+  const v = document.getElementById('ps').value.trim(), err = document.getElementById('pserr');
+  if (!v){ err.textContent = 'הקלידו שם קודם'; return; }
+  const p = PEOPLE.find(x => x.label === v) || PEOPLE.find(x => x.n === v) || PEOPLE.find(x => x.label.includes(v));
+  if (!p){ err.textContent = 'לא נמצא אדם בשם הזה במפה'; return; }
+  err.textContent = ''; route(p);
+}
+document.getElementById('psgo').onclick = findPerson;
+document.getElementById('ps').addEventListener('keydown', e => { if (e.key === 'Enter') findPerson(); });
+document.getElementById('ps').addEventListener('input', () => { document.getElementById('pserr').textContent = ''; const v = document.getElementById('ps').value; const p = PEOPLE.find(x => x.label === v); if (p) route(p); });
+document.getElementById('psx').onclick = () => { document.getElementById('ps').value = ''; document.getElementById('pserr').textContent = ''; clearRoute(); sel = null; draw(); home(); };
 draw(); home();
 gLand.selectAll('path').data(LAND.features).join('path').attr('class', 'land').attr('d', path);
 window.addEventListener('resize', () => { size(); limits(); });
