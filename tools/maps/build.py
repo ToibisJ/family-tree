@@ -18,6 +18,38 @@ def field(L, k):
         r.append(c); q += 1
     return ''.join(r)
 
+def jstr(L, q):
+    # reads the JS string that starts at L[q] == '"'; keeps line breaks
+    q += 1; r = []
+    while True:
+        c = L[q]
+        if c == BS:
+            n = L[q+1]; r.append('\n' if n == 'n' else n); q += 2; continue
+        if c == QQ: return ''.join(r), q + 1
+        r.append(c); q += 1
+
+def sfield(L, k):
+    for pre in ('{', ','):
+        a = L.find(pre + k + ':' + QQ)
+        if a >= 0: return jstr(L, a + len(k) + 2)[0]
+    return ''
+
+def chapters(L):
+    # x:[["title","body"],...] -> list of [title, body]
+    a = L.find(',x:[[')
+    if a < 0: a = L.find('{x:[[')
+    if a < 0: return []
+    q = a + 4; out = []
+    while L[q] == '[':
+        t1, q = jstr(L, q + 1)
+        while L[q] != QQ: q += 1
+        t2, q = jstr(L, q)
+        while L[q] != ']': q += 1
+        out.append([t1, t2]); q += 1
+        if L[q] == ',': q += 1
+        else: break
+    return out
+
 ids = [i for i in open(M + '/' + CFG['ids'], encoding='utf-8').read().strip().split(',') if i and i not in CFG.get('exclude', [])]
 people = []
 for i in ids:
@@ -25,7 +57,19 @@ for i in ids:
     if not m: print('  missing card', i); continue
     k = m.start()
     L = t[k+1:t.find('\n', k+1)]
-    people.append(dict(id=i, s=field(L, 's'), b=field(L, 'b'), d=field(L, 'd'), place=field(L, 'place')))
+    card = {kk: sfield(L, kk) for kk in ('n', 'rel', 'b', 'd', 'place', 'note', 'flag', 'src')}
+    card['x'] = chapters(L)
+    people.append(dict(id=i, s=field(L, 's'), b=field(L, 'b'), d=field(L, 'd'), place=field(L, 'place'), card=card))
+
+# gallery images per person (thumbnails), the person's own documents first
+ga = t.find('const GAL=') + 10
+GAL = json.loads(t[ga:t.find('\n', ga)].rstrip().rstrip(';'))
+IMGS = {}
+for grp in GAL:
+    for im in grp['i']:
+        for n_, pid in enumerate(im.get('p', [])):
+            IMGS.setdefault(pid, []).append((0 if n_ == 0 else 1, {'f': im['f'], 'c': im.get('c', '')}))
+IMGS = {k: [x for _, x in sorted(v, key=lambda z: z[0])] for k, v in IMGS.items()}
 
 a = t.find('const Y={'); ytxt = t[a:t.find('\n', a)]
 Ymap = {m.group(1): (m.group(2), m.group(3)) for m in re.finditer(r"([a-z_0-9]+):\['([^']*)','([^']*)'\]", ytxt)}
@@ -99,7 +143,7 @@ for p in people:
     for s in steps:
         names = set([C[s['k']][0]] + C[s['k']][4])
         s['t'] = [t for t in s['t'] if t.strip(' ,.') not in names]
-    if steps: ROUTES.append({'n': p['s'], 'y': yr, 's': steps})
+    if steps: ROUTES.append({'n': p['s'], 'y': yr, 's': steps, 'c': p['card'], 'g': IMGS.get(i, [])})
 print('routes', len(ROUTES))
 used = {k: v for k, v in cities.items() if v['b'] or v['l'] or v['d']}
 print('people', len(people), 'cities used', len(used))
