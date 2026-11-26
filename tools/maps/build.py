@@ -108,7 +108,7 @@ for p in people:
     if re.search(r'_kids$|_sibs$|_sib$', i): continue
     y = Ymap.get(i, ('?', '?'))
     yr = '' if y == ('?', '?') else (y[0] + '–' + y[1]).replace('?', '')
-    e = {'id': i, 'n': p['s'], 'y': yr}
+    e = {'id': i, 'n': p['s'].replace(' ↩', ''), 'y': yr}
     for role, txt in (('b', p['b']), ('d', strip_burial(p['d'])), ('l', strip_burial(p['place']))):
         seen = set()
         for k, u in find(txt):
@@ -143,7 +143,7 @@ for p in people:
     for s in steps:
         names = set([C[s['k']][0]] + C[s['k']][4])
         s['t'] = [t for t in s['t'] if t.strip(' ,.') not in names]
-    if steps: ROUTES.append({'n': p['s'], 'y': yr, 's': steps, 'c': p['card'], 'g': IMGS.get(i, [])})
+    if steps: ROUTES.append({'n': p['s'].replace(' ↩', ''), 'y': yr, 's': steps, 'c': p['card'], 'g': IMGS.get(i, [])})
 print('routes', len(ROUTES))
 used = {k: v for k, v in cities.items() if v['b'] or v['l'] or v['d']}
 print('people', len(people), 'cities used', len(used))
